@@ -4,9 +4,6 @@ import {Download} from "lucide-react";
 import {Card, CardFooter, CardHeader} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import Image from "next/image";
-import {useRef} from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 export default function InvoicePage() {
     return (
