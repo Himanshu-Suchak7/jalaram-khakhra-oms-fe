@@ -121,7 +121,9 @@ export default function Home() {
         <>
             <div className={'flex items-center justify-between'}>
                 <h1 className={'text-4xl font-bold'}>Dashboard</h1>
-                <MainButton content={'Add New Order'} Icon={CirclePlus}/>
+                <Link href={'/orders/add-order'}>
+                    <MainButton content={'Add New Order'} Icon={CirclePlus}/>
+                </Link>
             </div>
             <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'}>
                 {cardContents.map((card, index) => {
