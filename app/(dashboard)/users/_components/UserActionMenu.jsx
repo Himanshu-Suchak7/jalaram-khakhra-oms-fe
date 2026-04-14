@@ -13,7 +13,7 @@ import {
     Trash2, User,
 } from "lucide-react";
 
-export default function UserActionMenu({onChangePassword}) {
+export default function UserActionMenu({user, onChangePassword, onUpdateRole, onDelete}) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -21,37 +21,51 @@ export default function UserActionMenu({onChangePassword}) {
                     <MoreVertical className="h-4 w-4"/>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={onChangePassword}>
-                    <KeyRound className="mr-2 h-4 w-4"/>
-                    Change Password
+            <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg border-gray-100 p-2">
+                <DropdownMenuItem onClick={() => onChangePassword(user)} className="rounded-lg py-2.5 cursor-pointer">
+                    <KeyRound className="mr-2 h-4 w-4 text-gray-500"/>
+                    <span className="font-medium">Change Password</span>
                 </DropdownMenuItem>
+                
                 <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <RefreshCcw className="mr-2 h-4 w-4"/>
-                        Change User Role
+                    <DropdownMenuSubTrigger className="rounded-lg py-2.5 cursor-pointer">
+                        <RefreshCcw className="mr-2 h-4 w-4 text-gray-500"/>
+                        <span className="font-medium">Update User Role</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
+                        <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-gray-100 min-w-[120px]">
                             <DropdownMenuItem
-                                className={'text-blue-500 focus:bg-blue-100 focus:text-blue-500 font-medium flex items-center gap-1'}>
-                                <ShieldCheck className={'text-blue-500 w-4 h-4'}/> ADMIN
+                                onClick={() => onUpdateRole(user, "admin")}
+                                className={cn('rounded-lg py-2 cursor-pointer font-bold gap-2', 
+                                    user.role === 'admin' ? 'bg-blue-50 text-blue-700' : 'text-gray-600'
+                                )}>
+                                <ShieldCheck className={cn('w-4 h-4', user.role === 'admin' ? 'text-blue-600' : 'text-gray-400')}/> 
+                                ADMIN
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className={'text-gray-500 focus:bg-gray-100 focus:text-gray-500 font-medium flex items-center gap-1'}>
-                                <User className={'text-gray-500 w-4 h-4'}/> USER
+                                onClick={() => onUpdateRole(user, "user")}
+                                className={cn('rounded-lg py-2 cursor-pointer font-bold gap-2', 
+                                    user.role === 'user' ? 'bg-gray-50 text-gray-700' : 'text-gray-600'
+                                )}>
+                                <User className={cn('w-4 h-4', user.role === 'user' ? 'text-gray-600' : 'text-gray-400')}/> 
+                                USER
                             </DropdownMenuItem>
                         </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
 
-                <DropdownMenuSeparator/>
+                <DropdownMenuSeparator className="my-1.5 bg-gray-50" />
 
-                <DropdownMenuItem className="text-red-600 focus:bg-red-100 focus:text-red-600 hover:bg-red-100">
-                    <Trash2 className="mr-2 h-4 w-4 text-red-600"/>
+                <DropdownMenuItem 
+                    onClick={() => onDelete(user.id)}
+                    className="text-red-500 focus:bg-red-50 focus:text-red-600 hover:bg-red-50 rounded-lg py-2.5 cursor-pointer font-medium"
+                >
+                    <Trash2 className="mr-2 h-4 w-4 text-red-500"/>
                     Delete User
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
+
+import {cn} from "@/lib/utils";

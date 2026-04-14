@@ -1,11 +1,33 @@
+"use client";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {LockKeyhole, NotebookTabs} from "lucide-react";
-import Link from "next/link";
+import {useState} from "react";
+import {useAuth} from "@/lib/auth-context";
+import {useRouter} from "next/navigation";
+import {login} from "@/lib/auth";
+import {toast} from "sonner";
+
 
 export default function Login() {
+    const [phone, setPhone] = useState("");
+    const [password, setPassword] = useState("");
+    const {setAccessToken} = useAuth();
+    const router = useRouter();
+
+    async function handleLogin() {
+        try {
+            const data = await login(phone, password);
+            setAccessToken(data.access_token);
+            router.push("/");
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message);
+        }
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center">
             <Card className="max-w-[300px] sm:max-w-md p-4 sm:p-6 w-full">
@@ -21,7 +43,8 @@ export default function Login() {
                             <NotebookTabs
                                 className={'absolute left-3 top-[53%] -translate-y-1/2 h-4 w-4 text-muted-foreground'}/>
                             <Input className={'pl-9'} type={'tel'} id={'phoneNumber'} name={'phoneNumber'}
-                                   placeholder={'Enter your phone number'} required/>
+                                   placeholder={'Enter your phone number'} required
+                                   onChange={(e) => setPhone(e.target.value)}/>
                         </div>
                     </div>
                     <div>
@@ -31,13 +54,12 @@ export default function Login() {
                                 className={'absolute left-3 top-[50%] -translate-y-1/2 h-4 w-4 text-muted-foreground'}/>
                             <Input className={'pl-9'} type={'password'} id={'password'} name={'password'}
                                    placeholder={'Enter your password'}
-                                   required/>
+                                   required onChange={(e) => setPassword(e.target.value)}/>
                         </div>
                     </div>
                     <div>
-                        <Link href={'/'}>
-                            <Button className={'w-full bg-blue-500 hover:bg-blue-700 cursor-pointer'}>Log In</Button>
-                        </Link>
+                        <Button className={'w-full bg-blue-500 hover:bg-blue-700 cursor-pointer'} onClick={handleLogin}>Log
+                            In</Button>
                     </div>
                 </CardContent>
                 <CardFooter className={'justify-center'}>

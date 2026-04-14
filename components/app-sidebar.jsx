@@ -12,8 +12,12 @@ import {
 import Link from "next/link";
 import {Home, Package, Users, Settings, LogOut, ShoppingCart, UserCog, Warehouse} from "lucide-react";
 import Image from "next/image";
-import {usePathname} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {cn} from "@/lib/utils";
+import {logout} from "@/lib/auth";
+import {toast} from "sonner";
+import {useAuth} from "@/lib/auth-context";
+
 
 const navItems = [
     {
@@ -42,11 +46,6 @@ const navItems = [
         icon: Users,
     },
     {
-        title: "Users",
-        href: "/users",
-        icon: UserCog,
-    },
-    {
         title: "Settings",
         href: "/settings",
         icon: Settings,
@@ -54,6 +53,21 @@ const navItems = [
 ];
 
 export function AppSidebar() {
+    const pathName = usePathname();
+    const router = useRouter();
+    const {setAccessToken, setUser} = useAuth();
+    const {user} = useAuth();
+    async function handleLogout() {
+        try {
+            await logout();
+            setAccessToken(null);
+            setUser(null);
+            toast.success("Logout successfully");
+            router.push("/login");
+        } catch (error) {
+            toast.error("Logout Failed");
+        }
+    }
     const pathname = usePathname();
     return (
         <Sidebar>
@@ -93,6 +107,23 @@ export function AppSidebar() {
                                     </SidebarMenuItem>
                                 );
                             })}
+                            {user?.role === "admin" && (
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        className={cn(
+                                            "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
+                                            "hover:bg-blue-100 hover:text-blue-700",
+                                            pathname === "/users" && "bg-blue-100 text-blue-700 font-bold"
+                                        )}
+                                    >
+                                        <Link href="/users">
+                                            <UserCog />
+                                            <span>Users</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -101,11 +132,9 @@ export function AppSidebar() {
             <SidebarFooter className={'border-t'}>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link href={'/login'}>
+                        <SidebarMenuButton onClick={handleLogout}>
                                 <LogOut/>
                                 <span>Log out</span>
-                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

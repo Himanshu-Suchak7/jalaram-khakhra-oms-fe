@@ -23,6 +23,7 @@ import {
     PaginationPrevious
 } from "@/components/ui/pagination";
 import Image from "next/image";
+import {Button} from "@/components/ui/button";
 
 const cardContents = [
     {
@@ -156,7 +157,9 @@ export default function Inventory() {
                                         {row.status}
                                     </span>
                                 </TableCell>
-                                <TableCell className="px-4 py-6">{row.actions}</TableCell>
+                                <TableCell className="px-4 py-6">
+                                    <Button className={'cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700'}><Plus/> Add Stock</Button>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
