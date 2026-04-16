@@ -133,7 +133,7 @@ export default function Products() {
                     <div className="text-center space-y-2">
                         <h2 className="text-2xl font-bold text-gray-800">Your shelf is empty!</h2>
                         <p className="text-gray-500 max-w-sm">
-                            You haven't added any products yet. Let's get started and add your first product to the catalog.
+                            You haven&#39;t added any products yet. Let&#39;s get started and add your first product to the catalog.
                         </p>
                     </div>
                     <Button
@@ -165,7 +165,7 @@ export default function Products() {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold">No results found</h3>
-                                <p className="text-gray-500">We couldn't find any products matching "{searchQuery}"</p>
+                                <p className="text-gray-500">We couldn&#39;t find any products matching &#34;{searchQuery}&#34;</p>
                             </div>
                             <Button variant="ghost" onClick={() => setSearchQuery("")} className="text-blue-600">Clear Search</Button>
                         </div>

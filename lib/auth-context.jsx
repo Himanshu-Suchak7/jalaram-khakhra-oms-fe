@@ -17,25 +17,33 @@ export function AuthProvider({children}) {
 
     useEffect(() => {
         if (pathname === "/login") {
+            setAccessToken(null);
+            setUser(null);
             setLoading(false);
             return;
         }
 
         async function initAuth() {
             try {
-                // 1️⃣ Refresh access token (cookie-based)
-                const tokenData = await refreshToken();
+                let token = localStorage.getItem("access_token");
+                
+                if (!token) {
+                    const tokenData = await refreshToken();
+                    token = tokenData.access_token;
+                }
 
-                setAccessToken(tokenData.access_token);
+                setAccessToken(token);
 
-                // 2️⃣ Fetch current user
-                const me = await getCurrentUser(tokenData.access_token);
+                const me = await getCurrentUser();
                 setUser(me);
 
             } catch (error) {
+                console.error("Auth initialization failed:", error);
                 setAccessToken(null);
                 setUser(null);
-                router.replace("/login");
+                if (pathname !== "/login") {
+                    router.replace("/login");
+                }
             } finally {
                 setLoading(false);
             }

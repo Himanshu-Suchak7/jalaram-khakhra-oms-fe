@@ -1,3 +1,4 @@
+'use client';
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import MainButton from "@/components/MainButton";
 import {
@@ -8,7 +9,7 @@ import {
     Plus,
     TriangleAlert,
     CircleAlert,
-    Archive, Search
+    Archive, Search, Pencil
 } from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
@@ -24,72 +25,60 @@ import {
 } from "@/components/ui/pagination";
 import Image from "next/image";
 import {Button} from "@/components/ui/button";
+import {useInventorySummary} from "@/hooks/useInventorySummary";
+import {useState} from "react";
+import {useInventoryItems} from "@/hooks/useInventoryItems";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {addStockSchema, updateMinStockSchema} from "@/lib/validator/schema";
 
-const cardContents = [
-    {
-        title: 'Total Products',
-        number: 20,
-        icon: Archive,
-        iconColor: "text-gray-400"
-    },
-    {
-        title: 'Low Stock Products',
-        number: 5,
-        icon: TriangleAlert,
-        iconColor: "text-orange-400"
-    },
-    {
-        title: 'Out of Stock Products',
-        number: 2,
-        icon: CircleAlert,
-        iconColor: 'text-red-400'
-    },
-]
 const userTableHeader = ['PRODUCT', 'STOCK (KG)', 'MIN STOCK', 'STATUS', 'ACTIONS']
-const userTableData = [
-    {
-        name: 'Methi Khakhra',
-        stock: 50,
-        minStock: 10,
-        actions: 'Owner-Cannot modify',
-        image: '/products/methi-khakhra.png',
-        status: 'OK',
-    },
-    {
-        name: 'Jeera Khakhra',
-        stock: 5,
-        minStock: 10,
-        actions: 'Owner-Cannot modify',
-        image: '/products/jeera-khakhra.png',
-        status: 'Low Stock',
-    },
-    {
-        name: 'Jalaram Patra',
-        stock: 0,
-        minStock: 10,
-        actions: 'Owner-Cannot modify',
-        image: '/products/jalaram-patra.png',
-        status: 'Out of Stock',
-    },
-    {
-        name: 'Manchurian Khakhra',
-        stock: 8,
-        minStock: 10,
-        actions: 'Owner-Cannot modify',
-        image: '/products/methi-khakhra.png',
-        status: 'Low Stock',
-    },
-    {
-        name: 'Pani Puri Khakhra',
-        stock: 50,
-        minStock: 10,
-        actions: 'Owner-Cannot modify',
-        image: '/products/jalaram-patra.png',
-        status: 'OK',
-    }
-]
 
 export default function Inventory() {
+    const {data, isLoading} = useInventorySummary();
+    const cardContents = [
+        {
+            title: 'Total Products',
+            number: data?.total_products || 0,
+            icon: Archive,
+            iconColor: "text-gray-400"
+        },
+        {
+            title: 'Low Stock Products',
+            number: data?.low_stock_products || 0,
+            icon: TriangleAlert,
+            iconColor: "text-orange-400"
+        },
+        {
+            title: 'Out of Stock Products',
+            number: data?.out_of_stock_products || 0,
+            icon: CircleAlert,
+            iconColor: 'text-red-400'
+        },
+    ]
+    const [search, setSearch] = useState("");
+    const {data: itemsData, isLoading: itemsLoading} = useInventoryItems({ search, })
+    const items = itemsData?.data || []
+    const statusMap = {
+        OK: 'OK',
+        LOW_STOCK: 'Low Stock',
+        OUT_OF_STOCK: 'Out of Stock',
+    }
+    const [editingMinStockId, setEditingMinStockId] = useState(null)
+    const [minStockValue, setMinStockValue] = useState('')
+    const stockForm = useForm({
+        resolver: zodResolver(addStockSchema),
+        defaultValues: {
+            quantity_kg: '',
+        },
+    })
+    const minStockForm = useForm({
+        resolver: zodResolver(updateMinStockSchema),
+        defaultValues: {
+            min_stock_kg: '',
+        },
+    })
     return (
         <>
             <div className={'flex items-center'}>
@@ -130,35 +119,86 @@ export default function Inventory() {
                     </TableHeader>
 
                     <TableBody>
-                        {userTableData.map((row, index) => (
+                        {items.map((item, index) => (
                             <TableRow key={index}>
                                 <TableCell className="flex items-center gap-3 px-4 py-6">
                                     <div className="relative h-8 w-8 overflow-hidden rounded-full">
                                         <Image
-                                            src={row.image}
-                                            alt={row.name}
+                                            src={item.image}
+                                            alt={item.product_name}
                                             fill
                                             className="object-cover"
                                         />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="font-medium">{row.name}</span>
+                                        <span className="font-medium">{item.product_name}</span>
                                     </div>
                                 </TableCell>
 
-                                <TableCell className="px-4 py-6">{row.stock}</TableCell>
-                                <TableCell className="px-4 py-6">{row.minStock}</TableCell>
+                                <TableCell className="px-4 py-6">{item.stock_kg}</TableCell>
+                                <TableCell className="px-4 py-6">
+                                    {editingMinStockId === item.product_id ? (
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                type="number"
+                                                {...minStockForm.register("min_stock_kg")}
+                                                className="w-20 h-8"
+                                            />
+                                            {minStockForm.formState.errors.min_stock_kg && (
+                                                <p className={'text-red-500 text-sm'}>{minStockForm.formState.errors.min_stock_kg.message}</p>
+                                            )}
+                                            <Button size="sm" className={'cursor-pointer'}>Save</Button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-3">
+                                            <span>{item.min_stock_kg}</span>
+                                            <Button size={'icon'} variant={'outline'} className={'cursor-pointer text-gray-400 hover:text-blue-500'}
+                                                    onClick={() => {
+                                                        setEditingMinStockId(item.product_id);
+                                                    }}>
+                                                <Pencil
+                                                    className="w-4 h-4"
+                                                />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </TableCell>
                                 <TableCell className="px-4 py-6">
                                     <span className={cn('px-2 py-1 rounded-full text-xs font-medium',
-                                        row.status === 'OK' && 'bg-green-100 text-green-700',
-                                        row.status === 'Low Stock' && 'bg-orange-100 text-orange-700',
-                                        row.status === 'Out of Stock' && 'bg-red-100 text-red-700',
+                                        item.status === 'OK' && 'bg-green-100 text-green-700',
+                                        item.status === 'LOW_STOCK' && 'bg-orange-100 text-orange-700',
+                                        item.status === 'OUT_OF_STOCK' && 'bg-red-100 text-red-700',
                                     )}>
-                                        {row.status}
+                                        {statusMap[item.status]}
                                     </span>
                                 </TableCell>
                                 <TableCell className="px-4 py-6">
-                                    <Button className={'cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700'}><Plus/> Add Stock</Button>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button className="cursor-pointer bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700">
+                                                <Plus className="w-4 h-4 mr-1" />
+                                                Add Stock
+                                            </Button>
+                                        </PopoverTrigger>
+
+                                        <PopoverContent className="w-56 space-y-3">
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium">Add Stock (kg)</p>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Enter kg"
+                                                    {...stockForm.register("quantity_kg")}
+                                                />
+                                                {stockForm.formState.errors.quantity_kg && (
+                                                    <p className={'text-red-500 text-xs'}>{stockForm.formState.errors.quantity_kg.message}</p>
+                                                )}
+                                            </div>
+
+                                            <Button className="w-full">
+                                                Save
+                                            </Button>
+                                        </PopoverContent>
+                                    </Popover>
                                 </TableCell>
                             </TableRow>
                         ))}
