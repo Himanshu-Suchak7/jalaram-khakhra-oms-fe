@@ -11,18 +11,10 @@ import {
     CircleAlert,
     Archive, Search, Pencil
 } from "lucide-react";
-import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableFooter, TableHeader, TableRow} from "@/components/ui/table";
 import {cn} from "@/lib/utils";
-import {
-    Pagination,
-    PaginationContent, PaginationEllipsis,
-    PaginationItem,
-    PaginationLink, PaginationNext,
-    PaginationPrevious
-} from "@/components/ui/pagination";
 import Image from "next/image";
 import {Button} from "@/components/ui/button";
 import {useInventorySummary} from "@/hooks/useInventorySummary";
@@ -32,6 +24,8 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {addStockSchema, updateMinStockSchema} from "@/lib/validator/schema";
+import {useAddStock} from "@/hooks/useAddStock";
+import {useUpdateMinStock} from "@/hooks/useUpdateMinStock";
 
 const userTableHeader = ['PRODUCT', 'STOCK (KG)', 'MIN STOCK', 'STATUS', 'ACTIONS']
 
@@ -79,6 +73,33 @@ export default function Inventory() {
             min_stock_kg: '',
         },
     })
+
+    const {mutate: addStock, isPending: isAddingStock} = useAddStock();
+    const {mutate: updateMinStockMutate, isPending: isUpdatingMinStock} = useUpdateMinStock();
+
+    const onAddStock = (productId, data) => {
+        addStock({
+            product_id: productId,
+            quantity_kg: data.quantity_kg,
+            action: "ADD"
+        }, {
+            onSuccess: () => {
+                stockForm.reset();
+            }
+        });
+    }
+
+    const onUpdateMinStock = (productId, data) => {
+        updateMinStockMutate({
+            productId,
+            data
+        }, {
+            onSuccess: () => {
+                setEditingMinStockId(null);
+            }
+        });
+    }
+
     return (
         <>
             <div className={'flex items-center'}>
@@ -102,6 +123,17 @@ export default function Inventory() {
                         </Card>
                     )
                 })}
+            </div>
+            <div className="flex items-center justify-between gap-4">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"/>
+                    <Input
+                        placeholder="Search products..."
+                        className="pl-10"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
             </div>
             <Card className="overflow-hidden rounded-xl p-0">
                 <Table>
@@ -147,7 +179,14 @@ export default function Inventory() {
                                             {minStockForm.formState.errors.min_stock_kg && (
                                                 <p className={'text-red-500 text-sm'}>{minStockForm.formState.errors.min_stock_kg.message}</p>
                                             )}
-                                            <Button size="sm" className={'cursor-pointer'}>Save</Button>
+                                            <Button
+                                                size="sm"
+                                                className={'cursor-pointer'}
+                                                disabled={isUpdatingMinStock}
+                                                onClick={minStockForm.handleSubmit((data) => onUpdateMinStock(item.product_id, data))}
+                                            >
+                                                {isUpdatingMinStock ? "..." : "Save"}
+                                            </Button>
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-3">
@@ -155,6 +194,7 @@ export default function Inventory() {
                                             <Button size={'icon'} variant={'outline'} className={'cursor-pointer text-gray-400 hover:text-blue-500'}
                                                     onClick={() => {
                                                         setEditingMinStockId(item.product_id);
+                                                        minStockForm.setValue('min_stock_kg', item.min_stock_kg);
                                                     }}>
                                                 <Pencil
                                                     className="w-4 h-4"
@@ -194,8 +234,12 @@ export default function Inventory() {
                                                 )}
                                             </div>
 
-                                            <Button className="w-full">
-                                                Save
+                                            <Button
+                                                className="w-full"
+                                                disabled={isAddingStock}
+                                                onClick={stockForm.handleSubmit((data) => onAddStock(item.product_id, data))}
+                                            >
+                                                {isAddingStock ? "Saving..." : "Save"}
                                             </Button>
                                         </PopoverContent>
                                     </Popover>
