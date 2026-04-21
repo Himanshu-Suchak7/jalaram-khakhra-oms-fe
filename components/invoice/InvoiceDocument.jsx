@@ -69,11 +69,11 @@ export default function InvoiceDocument({ data }) {
                                     <p className={'font-bold'}>{RUPEE} {money(data.summary.subtotal)}</p>
                                 </div>
                                 <div className={'flex items-center justify-between'}>
-                                    <p className={'text-lg text-gray-400 font-medium'}>Tax (18%)</p>
+                                    <p className={'text-lg text-gray-400 font-medium'}>Tax ({data.summary.tax_rate}%)</p>
                                     <p className={'font-bold'}>{RUPEE} {money(data.summary.tax)}</p>
                                 </div>
                                 <div className={'flex items-center justify-between'}>
-                                    <p className={'text-lg text-gray-400 font-medium'}>Shipping (15%)</p>
+                                    <p className={'text-lg text-gray-400 font-medium'}>Shipping ({data.summary.shipping_rate}%)</p>
                                     <p className={'font-bold'}>{RUPEE} {money(data.summary.shipping)}</p>
                                 </div>
                             </div>

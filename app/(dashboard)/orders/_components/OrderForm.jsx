@@ -14,6 +14,7 @@ import {cn} from "@/lib/utils";
 import {getCustomers} from "@/lib/customer";
 import {getInventory} from "@/lib/inventory";
 import {createOrder, updateOrder} from "@/lib/orders";
+import {getBusiness} from "@/lib/business";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
@@ -35,10 +36,19 @@ export default function OrderForm({mode = 'add', order}) {
     const [items, setItems] = useState([{product_id: "", name: "", quantity: "", price: "", image: "", stock: 0}]);
     const [notes, setNotes] = useState("");
     const [loading, setLoading] = useState(false);
+    const [rates, setRates] = useState({tax_rate: 18, shipping_rate: 15});
 
     useEffect(() => {
         getCustomers().then(setCustomers).catch(console.error);
         getInventory().then(res => setAllProducts(res.data)).catch(console.error);
+        getBusiness().then(res => {
+            if (res) {
+                setRates({
+                    tax_rate: res.tax_rate,
+                    shipping_rate: res.shipping_rate
+                });
+            }
+        }).catch(console.error);
 
         if (isEdit && order) {
             const o = order.order;
@@ -64,8 +74,8 @@ export default function OrderForm({mode = 'add', order}) {
     }, [order, isEdit]);
 
     const subtotal = items.reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.price || 0)), 0);
-    const tax = subtotal * 0.18;
-    const shipping = subtotal * 0.15;
+    const tax = subtotal * (rates.tax_rate / 100);
+    const shipping = subtotal * (rates.shipping_rate / 100);
     const grandTotal = subtotal + tax + shipping;
 
     const addItem = () => {
@@ -221,13 +231,11 @@ export default function OrderForm({mode = 'add', order}) {
                                                         newItems[idx] = {
                                                             product_id: p.product_id,
                                                             name: p.product_name,
-                                                            price: p.price_per_kg || 0, // Need to make sure price is available
+                                                            price: p.price_per_kg || 0,
                                                             image: p.image,
                                                             stock: p.stock_kg,
                                                             quantity: ""
                                                         };
-                                                        // Fallback check if price is missing in inventory, we might need a separate call or unified endpoint
-                                                        // Let's assume for now it's there or handle it
                                                         setItems(newItems);
                                                     }}
                                                     className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-md cursor-pointer"
@@ -318,11 +326,11 @@ export default function OrderForm({mode = 'add', order}) {
                             <p className={'font-bold'}>₹ {subtotal.toLocaleString()}</p>
                         </div>
                         <div className={'flex items-center justify-between'}>
-                            <p className={'text-gray-500 font-medium'}>Tax (18%)</p>
+                            <p className={'text-gray-500 font-medium'}>Tax ({rates.tax_rate}%)</p>
                             <p className={'font-medium'}>₹ {tax.toLocaleString()}</p>
                         </div>
                         <div className={'flex items-center justify-between'}>
-                            <p className={'text-gray-500 font-medium'}>Shipping (15%)</p>
+                            <p className={'text-gray-500 font-medium'}>Shipping ({rates.shipping_rate}%)</p>
                             <p className={'font-medium'}>₹ {shipping.toLocaleString()}</p>
                         </div>
                     </div>

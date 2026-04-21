@@ -153,7 +153,7 @@ export default function Home() {
                             {data.recent_orders.map((order, index) => (
                                 <TableRow key={index} className="group hover:bg-gray-50 transition-colors border-gray-100">
                                     <TableCell className={'px-6 py-5 font-bold text-blue-600'}>
-                                        <Link href={`/orders/${order.order_id}/invoice`}>
+                                        <Link href={`/orders/${order.id}/invoice`}>
                                             {order.order_id}
                                         </Link>
                                     </TableCell>
