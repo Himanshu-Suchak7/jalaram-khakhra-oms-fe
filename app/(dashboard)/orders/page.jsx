@@ -110,7 +110,7 @@ export default function Orders() {
                                     <TableCell className={'px-6 py-5'}>
                                         <StatusBadge status={row.payment_status} type="payment" />
                                     </TableCell>
-                                    <TableCell className={'px-6 py-5'}>
+                                    <TableCell className={'px-6 py-5 flex items-center justify-end'}>
                                         <OrderActionMenu order={row} onMutation={() => fetchOrders(search)}/>
                                     </TableCell>
                                 </TableRow>
