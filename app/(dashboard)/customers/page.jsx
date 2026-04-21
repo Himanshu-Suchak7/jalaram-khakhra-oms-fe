@@ -16,7 +16,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
 import ConfirmationDialog from "@/components/shared/ConfirmationDialog";
 
-const userTableHeader = ['Customer Name', 'PHONE NUMBER', 'STATUS', 'ACTIONS']
+const userTableHeader = ['Customer Name', 'PHONE NUMBER', 'ADDRESS', 'CITY', 'STATUS', 'ACTIONS']
 
 export default function Customers() {
     const {accessToken} = useAuth();
@@ -58,6 +58,8 @@ export default function Customers() {
         if (!Array.isArray(customers)) return [];
         return customers.filter(customer =>
             customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (customer.customer_address || customer.address || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (customer.customer_city || customer.city || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             customer.phone_number?.includes(searchQuery) ||
             customer.phone?.includes(searchQuery)
         );
@@ -163,6 +165,16 @@ export default function Customers() {
                                         </TableCell>
                                         <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>
                                             {customer.phone_number || customer.phone || 'N/A'}
+                                        </TableCell>
+                                        <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>
+                                            {customer.customer_address || customer.address ? (
+                                                (customer.customer_address || customer.address).length > 20 
+                                                ? (customer.customer_address || customer.address).substring(0, 20) + "..."
+                                                : (customer.customer_address || customer.address)
+                                            ) : 'N/A'}
+                                        </TableCell>
+                                        <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>
+                                            {customer.customer_city || customer.city || 'N/A'}
                                         </TableCell>
                                         <TableCell className={'px-6 py-5'}>
                                             <StatusBadge status={customer.status || 'ACTIVE'} type="user" />

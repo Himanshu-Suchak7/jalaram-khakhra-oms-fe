@@ -34,6 +34,12 @@ export default function OrderActionMenu({order, onMutation}) {
     const orderId = order.id || order.order_id;
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const normalizeStatus = (val) => String(val || "").split(".").pop().toUpperCase();
+    const orderStatus = normalizeStatus(order?.order_status);
+    const paymentStatus = normalizeStatus(order?.payment_status);
+    const isNotesOnly = orderStatus === "FULFILLED" && paymentStatus === "PAID";
+    const isStatusLocked = orderStatus === "CANCELLED" || orderStatus === "FULFILLED";
+    const isPaymentLocked = paymentStatus === "PAID" || orderStatus === "CANCELLED";
 
     const handleChangeStatus = async (status) => {
         try {
@@ -86,33 +92,54 @@ export default function OrderActionMenu({order, onMutation}) {
                         View Invoice
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href={`/orders/${orderId}/edit`}>
+                {orderStatus === "CANCELLED" ? (
+                    <DropdownMenuItem
+                        disabled
+                        onSelect={(e) => e.preventDefault()}
+                        className="cursor-not-allowed opacity-60"
+                    >
                         <Pencil className="mr-2 h-4 w-4"/>
-                        Edit Order
-                    </Link>
-                </DropdownMenuItem>
+                        Edit Order (Locked)
+                    </DropdownMenuItem>
+                ) : isNotesOnly ? (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href={`/orders/${orderId}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4"/>
+                            Edit (Notes only)
+                        </Link>
+                    </DropdownMenuItem>
+                ) : (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href={`/orders/${orderId}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4"/>
+                            Edit Order
+                        </Link>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="cursor-pointer">
+                    <DropdownMenuSubTrigger className="cursor-pointer" disabled={isStatusLocked}>
                         <RefreshCcw className="mr-2 h-4 w-4"/>
-                        Change Status
+                        {isStatusLocked ? "Change Status (Locked)" : "Change Status"}
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
                         <DropdownMenuSubContent>
                             <DropdownMenuItem 
                                 onClick={() => handleChangeStatus("FULFILLED")}
+                                disabled={isStatusLocked || orderStatus === "FULFILLED"}
                                 className={'cursor-pointer text-green-500 focus:bg-green-100 focus:text-green-500 font-medium flex items-center gap-1'}
                             >
                                 <PackageCheck className={'text-green-500 w-4 h-4'}/> FULFILLED
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                                 onClick={() => handleChangeStatus("PENDING")}
+                                disabled={isStatusLocked || orderStatus === "PENDING"}
                                 className={'cursor-pointer text-orange-500 focus:bg-orange-100 focus:text-orange-500 font-medium flex items-center gap-1'}
                             >
                                 <Clock className={'text-orange-500 w-4 h-4'}/> PENDING
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                                 onClick={() => handleChangeStatus("CANCELLED")}
+                                disabled={isStatusLocked || orderStatus === "CANCELLED"}
                                 className={'cursor-pointer text-red-500 focus:bg-red-100 focus:text-red-500 font-medium flex items-center gap-1'}
                             >
                                 <Ban className={'text-red-500 w-4 h-4'}/> CANCELLED
@@ -121,26 +148,29 @@ export default function OrderActionMenu({order, onMutation}) {
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="cursor-pointer">
+                    <DropdownMenuSubTrigger className="cursor-pointer" disabled={isPaymentLocked}>
                         <CreditCard className="mr-2 h-4 w-4"/>
-                        Payment Status
+                        {isPaymentLocked ? "Payment Status (Locked)" : "Payment Status"}
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
                         <DropdownMenuSubContent>
                             <DropdownMenuItem 
                                 onClick={() => handlePaymentStatus("PAID")}
+                                disabled={isPaymentLocked || paymentStatus === "PAID"}
                                 className={'cursor-pointer text-green-500 focus:bg-green-100 focus:text-green-500 font-medium flex items-center gap-1 text-xs'}
                             >
                                 <CheckCircle2 className={'text-green-500 w-4 h-4'}/> PAID
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                                 onClick={() => handlePaymentStatus("PARTIAL")}
+                                disabled={isPaymentLocked || paymentStatus === "PARTIAL"}
                                 className={'cursor-pointer text-orange-500 focus:bg-orange-100 focus:text-orange-500 font-medium flex items-center gap-1 text-xs'}
                             >
                                 <Clock className={'text-orange-500 w-4 h-4'}/> PARTIAL
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                                 onClick={() => handlePaymentStatus("UNPAID")}
+                                disabled={isPaymentLocked || paymentStatus === "UNPAID"}
                                 className={'cursor-pointer text-red-500 focus:bg-red-100 focus:text-red-500 font-medium flex items-center gap-1 text-xs'}
                             >
                                 <ShieldAlert className={'text-red-500 w-4 h-4'}/> UNPAID

@@ -26,7 +26,9 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
         resolver: zodResolver(customerSchema),
         defaultValues: {
             name: "",
-            phone_number: ""
+            phone_number: "",
+            address: "",
+            city: ""
         }
     });
 
@@ -35,12 +37,16 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
             if (customer) {
                 reset({
                     name: customer.name || "",
-                    phone_number: customer.phone_number || customer.phone || ""
+                    phone_number: customer.phone_number || customer.phone || "",
+                    address: customer.customer_address || customer.address || "",
+                    city: customer.customer_city || customer.city || ""
                 });
             } else {
                 reset({
                     name: "",
-                    phone_number: ""
+                    phone_number: "",
+                    address: "",
+                    city: ""
                 });
             }
         }
@@ -98,6 +104,26 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
                                 className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.phone_number && "border-red-500")}
                             />
                             {errors.phone_number && <p className="text-xs text-red-500 font-medium">{errors.phone_number.message}</p>}
+                        </div>
+                        <div className={'space-y-2'}>
+                            <Label htmlFor={'address'} className="text-sm font-semibold">Address</Label>
+                            <Input
+                                {...register("address")}
+                                type={'text'}
+                                placeholder={'e.g. 123 Main St'}
+                                className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.address && "border-red-500")}
+                            />
+                            {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
+                        </div>
+                        <div className={'space-y-2'}>
+                            <Label htmlFor={'city'} className="text-sm font-semibold">City</Label>
+                            <Input
+                                {...register("city")}
+                                type={'text'}
+                                placeholder={'e.g. Rajkot'}
+                                className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.city && "border-red-500")}
+                            />
+                            {errors.city && <p className="text-xs text-red-500 font-medium">{errors.city.message}</p>}
                         </div>
                     </div>
 

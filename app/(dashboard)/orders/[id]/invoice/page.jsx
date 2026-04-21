@@ -11,6 +11,7 @@ export default function InvoicePage() {
     const { id } = useParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -26,8 +27,15 @@ export default function InvoicePage() {
         }
     }, [id]);
 
-    const handleDownload = () => {
-        downloadInvoicePdf(id, `${data?.invoice_number || 'invoice'}.pdf`);
+    const handleDownload = async () => {
+        try {
+            setDownloading(true);
+            await downloadInvoicePdf(id, `${data?.invoice_number || 'invoice'}.pdf`);
+        } catch (error) {
+            console.error("Failed to download invoice", error);
+        } finally {
+            setDownloading(false);
+        }
     };
 
     if (loading) {
@@ -57,7 +65,12 @@ export default function InvoicePage() {
                     <h1 className={'text-4xl font-bold'}>Invoice</h1>
                 </div>
                 <div className="w-full sm:w-auto">
-                    <MainButton onClick={handleDownload} content={'Download Invoice'} Icon={Download}/>
+                    <MainButton 
+                        onClick={handleDownload} 
+                        content={'Download Invoice'} 
+                        Icon={Download} 
+                        loading={downloading}
+                    />
                 </div>
             </div>
             <InvoiceDocument data={data} />

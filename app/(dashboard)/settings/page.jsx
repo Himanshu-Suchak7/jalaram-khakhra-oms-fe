@@ -274,7 +274,7 @@ export default function Settings() {
                                                         <SelectValue placeholder="Select Tax Rate" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {Array.from({ length: 100 }, (_, i) => i + 1).map(num => (
+                                                        {Array.from({ length: 101 }, (_, i) => i).map(num => (
                                                             <SelectItem key={num} value={String(num)}>
                                                                 {num}%
                                                             </SelectItem>
@@ -296,7 +296,7 @@ export default function Settings() {
                                                         <SelectValue placeholder="Select Shipping Rate" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {Array.from({ length: 100 }, (_, i) => i + 1).map(num => (
+                                                        {Array.from({ length: 101 }, (_, i) => i).map(num => (
                                                             <SelectItem key={num} value={String(num)}>
                                                                 {num}%
                                                             </SelectItem>

@@ -30,6 +30,11 @@ export default function InvoiceDocument({ data }) {
                     <div className={'bg-gray-100 p-4 border border-gray-200 rounded-lg mt-2'}>
                         <p className={'text-lg font-medium'}>{data.bill_to.name}</p>
                         <p className={'text-gray-600'}>{data.bill_to.phone}</p>
+                        {(data.bill_to.address || data.bill_to.city) && (
+                            <p className={'text-gray-600'}>
+                                {data.bill_to.address}{data.bill_to.address && data.bill_to.city ? ', ' : ''}{data.bill_to.city}
+                            </p>
+                        )}
                     </div>
                     <div className={'border border-gray-200 rounded-lg mt-8'}>
                         <Table>

@@ -63,7 +63,7 @@ export default function Inventory() {
     const {mutate: updateMinStockMutate, isPending: isUpdatingMinStock} = useUpdateMinStock();
 
     const onAddStock = (productId, data) => {
-        addStock({ product_id: productId, quantity_kg: data.quantity_kg, action: "ADD" }, {
+        addStock({ product_id: productId, quantity_kg: data.quantity_kg, action: "add" }, {
             onSuccess: () => stockForm.reset()
         });
     }

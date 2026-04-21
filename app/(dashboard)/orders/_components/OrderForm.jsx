@@ -38,6 +38,26 @@ export default function OrderForm({mode = 'add', order}) {
     const [loading, setLoading] = useState(false);
     const [rates, setRates] = useState({tax_rate: 18, shipping_rate: 15});
 
+    const normalizeStatus = (val) => String(val || "").split(".").pop().toUpperCase();
+    const orderStatus = normalizeStatus(order?.order?.order_status);
+    const paymentStatus = normalizeStatus(order?.order?.payment_status);
+
+    let editMode = "full"; // full | limited | notes_only | none
+    if (isEdit) {
+        if (orderStatus === "CANCELLED") editMode = "none";
+        else if (orderStatus === "FULFILLED" && paymentStatus === "PAID") editMode = "notes_only";
+        else if (orderStatus === "FULFILLED") editMode = "limited";
+        else if (orderStatus === "PENDING" && paymentStatus === "PAID") editMode = "limited";
+    }
+
+    const canEditCustomer = !isEdit || editMode === "full";
+    const canEditItems = !isEdit || editMode === "full";
+    const canEditDate = !isEdit || editMode === "full";
+    const canSubmit = !isEdit || editMode !== "none";
+    const submitLabel = isAdd
+        ? "Create Order"
+        : (editMode === "notes_only" ? "Update Notes" : "Update Order");
+
     useEffect(() => {
         getCustomers().then(setCustomers).catch(console.error);
         getInventory().then(res => setAllProducts(res.data)).catch(console.error);
@@ -49,7 +69,9 @@ export default function OrderForm({mode = 'add', order}) {
                 });
             }
         }).catch(console.error);
+    }, []);
 
+    useEffect(() => {
         if (isEdit && order) {
             const o = order.order;
             setSelectedCustomer({
@@ -61,17 +83,20 @@ export default function OrderForm({mode = 'add', order}) {
             setNotes(o.notes || "");
             
             if (order.items) {
-                setItems(order.items.map(i => ({
-                    product_id: i.product_id,
-                    name: i.product_name,
-                    quantity: String(i.quantity_kg),
-                    price: String(i.price_per_kg),
-                    image: "", 
-                    stock: 999 
-                })));
+                setItems(order.items.map(i => {
+                    const product = allProducts.find(p => p.product_id === i.product_id);
+                    return {
+                        product_id: i.product_id,
+                        name: i.product_name,
+                        quantity: String(i.quantity_kg),
+                        price: String(i.price_per_kg),
+                        image: product ? product.image : "", 
+                        stock: product ? (Number(product.stock_kg) + Number(i.quantity_kg)) : 999
+                    };
+                }));
             }
         }
-    }, [order, isEdit]);
+    }, [order, isEdit, allProducts.length]);
 
     const subtotal = items.reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.price || 0)), 0);
     const tax = subtotal * (rates.tax_rate / 100);
@@ -88,6 +113,9 @@ export default function OrderForm({mode = 'add', order}) {
     };
 
     const handleSave = async () => {
+        if (!canSubmit) {
+            return toast.error("This order cannot be edited (cancelled).");
+        }
         if (!selectedCustomer) return toast.error("Please select a customer");
         if (items.some(i => !i.product_id || !i.quantity)) return toast.error("Please fill all item details");
 
@@ -122,15 +150,22 @@ export default function OrderForm({mode = 'add', order}) {
     };
 
     return (
-        <Card className="max-w-5xl mx-auto">
+        <Card className="w-full mx-auto">
             <CardHeader className={'border-b bg-gray-50/50'}>
                 <CardTitle className={'text-lg'}>Customer & Date</CardTitle>
+                {isEdit && editMode !== "full" && (
+                    <div className="mt-3 rounded-xl border bg-white px-4 py-3 text-sm text-gray-700">
+                        {editMode === "none" && "This order is cancelled and cannot be edited."}
+                        {editMode === "notes_only" && "This order is fulfilled & paid. Only notes can be updated."}
+                        {editMode === "limited" && "This order has restrictions. Items cannot be changed."}
+                    </div>
+                )}
                 <div className={'flex flex-col sm:flex-row sm:items-center gap-4 mt-4'}>
                     <div className={'w-full sm:w-1/2 space-y-2'}>
                         <Label>Customer Name</Label>
                         <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
                             <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-between font-normal h-12">
+                                <Button variant="outline" className="w-full justify-between font-normal h-12" disabled={!canEditCustomer}>
                                     {selectedCustomer ? (
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
@@ -169,7 +204,7 @@ export default function OrderForm({mode = 'add', order}) {
                                             </div>
                                             <div>
                                                 <p className="font-medium">{c.name}</p>
-                                                <p className="text-xs text-gray-500">{c.phone_number}</p>
+                                                <p className="text-xs text-gray-500">{c.phone_number} {c.city ? `| ${c.city}` : ''}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -181,13 +216,13 @@ export default function OrderForm({mode = 'add', order}) {
                         <Label className="px-1">Order Date</Label>
                         <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                             <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-between font-normal h-12">
+                                <Button variant="outline" className="w-full justify-between font-normal h-12" disabled={!canEditDate}>
                                     {date ? date.toLocaleDateString() : "Select date"}
                                     <ChevronDownIcon className="h-4 w-4 opacity-50"/>
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-[min(340px,calc(100vw-2rem))] p-0" align="start">
-                                <Calendar mode="single" selected={date} onSelect={(d) => { setDate(d); setDatePopoverOpen(false); }} />
+                                <Calendar mode="single" selected={date} onSelect={(d) => { if (!canEditDate) return; setDate(d); setDatePopoverOpen(false); }} />
                             </PopoverContent>
                         </Popover>
                     </div>
@@ -197,7 +232,7 @@ export default function OrderForm({mode = 'add', order}) {
             <div className={'px-6 py-6 border-b'}>
                 <div className="flex items-center justify-between mb-6">
                     <h3 className={'font-semibold text-lg flex items-center gap-2'}><Package className="w-5 h-5 text-blue-500"/> Order Items</h3>
-                    <Button variant='outline' size="sm" onClick={addItem} className='cursor-pointer gap-1'>
+                    <Button variant='outline' size="sm" onClick={addItem} className='cursor-pointer gap-1' disabled={!canEditItems}>
                         <Plus className="w-4 h-4"/> Add Item
                     </Button>
                 </div>
@@ -209,7 +244,7 @@ export default function OrderForm({mode = 'add', order}) {
                                 <Label>Select Product</Label>
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button variant="outline" className="w-full justify-between font-normal h-11">
+                                        <Button variant="outline" className="w-full justify-between font-normal h-11" disabled={!canEditItems}>
                                             {item.product_id ? (
                                                 <div className="flex items-center gap-2 overflow-hidden">
                                                     <div className="w-6 h-6 flex-shrink-0">
@@ -258,7 +293,7 @@ export default function OrderForm({mode = 'add', order}) {
                             <div className="col-span-6 md:col-span-2 space-y-2">
                                 <Label>Qty (kg) <span className="text-[10px] text-blue-500 font-bold">Max: {item.stock}</span></Label>
                                 <Select 
-                                    disabled={!item.product_id || item.stock <= 0}
+                                    disabled={!item.product_id || item.stock <= 0 || !canEditItems}
                                     onValueChange={(val) => {
                                         const newItems = [...items];
                                         newItems[idx].quantity = val;
@@ -285,6 +320,7 @@ export default function OrderForm({mode = 'add', order}) {
                                     type="number" 
                                     className="h-11"
                                     value={item.price} 
+                                    disabled={!canEditItems}
                                     onChange={(e) => {
                                         const newItems = [...items];
                                         newItems[idx].price = e.target.value;
@@ -299,7 +335,7 @@ export default function OrderForm({mode = 'add', order}) {
                                     <span className="text-lg font-bold">₹ {(Number(item.quantity || 0) * Number(item.price || 0)).toLocaleString()}</span>
                                 </div>
                                 {items.length > 1 && (
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem(idx)} className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                                    <Button variant="ghost" size="icon" onClick={() => removeItem(idx)} disabled={!canEditItems} className="text-red-500 hover:text-red-700 hover:bg-red-50">
                                         <Trash2 className="w-5 h-5"/>
                                     </Button>
                                 )}
@@ -348,7 +384,8 @@ export default function OrderForm({mode = 'add', order}) {
                 <MainButton 
                     onClick={handleSave} 
                     loading={loading}
-                    content={isAdd ? "Create Order" : "Update Order"} 
+                    disabled={!canSubmit}
+                    content={submitLabel} 
                     Icon={isAdd ? Check : Pencil}
                 />
             </CardFooter>
