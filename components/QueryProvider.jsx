@@ -3,8 +3,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function QueryProvider({ children }) {
+  const pathname = usePathname();
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -18,7 +20,9 @@ export default function QueryProvider({ children }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {process.env.NODE_ENV === "development" && pathname !== "/invoice-pdf" ? (
+        <ReactQueryDevtools initialIsOpen={false} />
+      ) : null}
     </QueryClientProvider>
   );
 }

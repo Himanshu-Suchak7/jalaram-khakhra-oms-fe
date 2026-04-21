@@ -16,7 +16,7 @@ export function AuthProvider({children}) {
     const pathname = usePathname();
 
     useEffect(() => {
-        if (pathname === "/login") {
+        if (pathname === "/login" || pathname === "/invoice-pdf") {
             setAccessToken(null);
             setUser(null);
             setLoading(false);

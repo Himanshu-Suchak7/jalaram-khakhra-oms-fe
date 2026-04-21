@@ -16,6 +16,15 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Invoice PDF rendering
+
+The backend renders invoice PDFs by loading the frontend route `/invoice-pdf?token=...` in a headless browser.
+Set the same secret on both apps:
+
+```
+OMS_PDF_TOKEN_SECRET=change_me_to_a_long_random_secret
+```
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

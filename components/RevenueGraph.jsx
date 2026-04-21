@@ -4,34 +4,23 @@ import {TrendingUp} from "lucide-react";
 import {Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 
 export function RevenueGraph({data}) {
-    const chartData = [
-        {
-            name: data.week1.title,
-            revenue: data.week1.number
-        },
-        {
-            name: data.week2.title,
-            revenue: data.week2.number
-        },
-        {
-            name: data.week3.title,
-            revenue: data.week3.number
-        },
-        {
-            name: data.week4.title,
-            revenue: data.week4.number
-        }
-    ]
+    // Map the backend series to the chart format
+    // Backend format: series: [ { label: 'Week 1', value: 100.0 }, ... ]
+    const chartData = (data?.series || []).map(item => ({
+        name: item.label,
+        revenue: item.value
+    }));
+
     return (
         <Card>
             <CardHeader className={'flex items-center justify-between'}>
                 <div>
-                    <h3 className={'text-xl font-medium'}>{data.title}</h3>
-                    <p className={'text-sm text-gray-400'}>{`Last ${data.days} days`}</p>
+                    <h3 className={'text-xl font-medium'}>Revenue Overview</h3>
+                    <p className={'text-sm text-gray-400'}>{`Last ${data?.days || 30} days`}</p>
                 </div>
                 <div className={'flex items-center gap-2 text-green-500'}>
                     <TrendingUp/>
-                    <span className={'font-medium'}>+12.8%</span>
+                    <span className={'font-medium'}>Live</span>
                 </div>
             </CardHeader>
             <CardContent>
@@ -75,4 +64,4 @@ export function RevenueGraph({data}) {
             </CardContent>
         </Card>
     )
-}
+}

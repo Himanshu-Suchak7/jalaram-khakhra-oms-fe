@@ -1,3 +1,5 @@
+'use client'
+import {useEffect, useState} from "react";
 import {CircleCheckBig, CirclePlus, CircleX, ClipboardClock, DollarSign, MoveRight} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
@@ -7,116 +9,65 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {cn} from "@/lib/utils";
 import Link from "next/link";
 import MainButton from "@/components/MainButton";
-
-const cardContents = [
-    {
-        title: 'Pending Orders',
-        number: 15,
-        icon: ClipboardClock,
-        iconColor: "text-gray-400"
-    },
-    {
-        title: 'Fulfilled Orders',
-        number: 128,
-        icon: CircleCheckBig,
-        iconColor: "text-green-400"
-    },
-    {
-        title: 'Cancelled Orders',
-        number: 8,
-        icon: CircleX,
-        iconColor: 'text-red-400'
-    },
-    {
-        title: 'Total Revenue',
-        number: '$ 25483.50',
-        icon: DollarSign,
-        iconColor: "text-gray-400"
-    }
-]
-
-const orderStatus = {
-    title: 'Order Status',
-    pending: {
-        title: 'Pending',
-        number: 15,
-        color: 'text-blue-500'
-    },
-    fulfilled: {
-        title: 'Fulfilled',
-        number: 128,
-        color: 'text-green-500'
-    },
-    canceled: {
-        title: 'Canceled',
-        number: 8,
-        color: 'text-red-500'
-    },
-    total: 151,
-    totalTitle: 'Total Orders',
-}
-
-const revenueGraph = {
-    title: 'Revenue Overview',
-    days: 30,
-    week1: {
-        title: 'Week 1',
-        number: 30,
-    },
-    week2: {
-        title: 'Week 2',
-        number: 40,
-    },
-    week3: {
-        title: 'Week 3',
-        number: 20,
-    },
-    week4: {
-        title: 'Week 4',
-        number: 60,
-    },
-}
+import {getDashboardOverview} from "@/lib/dashboard";
 
 const orderTableHeader = ["ORDER ID", "CUSTOMER", "DATE", "STATUS", "TOTAL"]
-const orderTableData = [
-    {
-        orderID: "#A583",
-        customer: "John Doe",
-        date: "25/12/2025",
-        status: "Fulfilled",
-        total: 250
-    },
-    {
-        orderID: "#A584",
-        customer: "Himanshu Suchak",
-        date: "20/10/2025",
-        status: "Canceled",
-        total: 1250
-    },
-    {
-        orderID: "#A585",
-        customer: "Om Chandarana",
-        date: "22/07/2025",
-        status: "Pending",
-        total: 350
-    },
-    {
-        orderID: "#A586",
-        customer: "Dharmesh Suchak",
-        date: "6/5/2025",
-        status: "Fulfilled",
-        total: 200
-    },
-    {
-        orderID: "#A587",
-        customer: "Poonam Suchak",
-        date: "20/5/2025",
-        status: "Pending",
-        total: 120
-    },
-]
 
 export default function Home() {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getDashboardOverview()
+            .then(res => {
+                setData(res);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div className="p-8 text-center text-2xl font-bold">Loading Dashboard...</div>;
+    if (!data) return <div className="p-8 text-center text-red-500 font-bold">Failed to load data</div>;
+
+    const cardContents = [
+        {
+            title: 'Pending Orders',
+            number: data.cards.pending_orders,
+            icon: ClipboardClock,
+            iconColor: "text-gray-400"
+        },
+        {
+            title: 'Fulfilled Orders',
+            number: data.cards.fulfilled_orders,
+            icon: CircleCheckBig,
+            iconColor: "text-green-400"
+        },
+        {
+            title: 'Cancelled Orders',
+            number: data.cards.cancelled_orders,
+            icon: CircleX,
+            iconColor: 'text-red-400'
+        },
+        {
+            title: 'Total Revenue',
+            number: `₹ ${data.cards.total_revenue.toLocaleString()}`,
+            icon: DollarSign,
+            iconColor: "text-gray-400"
+        }
+    ];
+
+    const orderStatusProps = {
+        title: 'Order Status',
+        pending: { title: 'Pending', number: data.order_status.pending },
+        fulfilled: { title: 'Fulfilled', number: data.order_status.fulfilled },
+        canceled: { title: 'Cancelled', number: data.order_status.cancelled },
+        total: data.order_status.total,
+        totalTitle: 'Total Orders',
+    };
+
     return (
         <>
             <div className={'flex items-center justify-between'}>
@@ -142,55 +93,54 @@ export default function Home() {
                 })}
             </div>
             <div className={'grid grid-cols-1 lg:grid-cols-2 gap-4'}>
-                <OrderStatusChart data={orderStatus}/>
-                <RevenueGraph data={revenueGraph}/>
+                <OrderStatusChart data={orderStatusProps}/>
+                <RevenueGraph data={data.revenue_overview}/>
             </div>
             <div className={'space-y-5'}>
                 <div className={'flex items-center justify-between'}>
                     <h2 className={'text-2xl font-bold'}>Recent Orders</h2>
                     <Button
+                        variant="ghost"
                         className={'bg-gray-200 hover:bg-gray-400 cursor-pointer text-gray-600 hover:text-gray-200 font-medium'}>
                         <Link href={'/orders'} className={'flex items-center gap-2 align-middle'}>
                             View all orders <MoveRight/>
                         </Link>
                     </Button>
                 </div>
-                <Card className={'p-0'}>
+                <Card className={'p-0 overflow-hidden'}>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                {orderTableHeader.map((header, index) => {
-                                    return (
-                                        <TableHead className={'px-4 py-6 text-lg'} key={index}>{header}</TableHead>
-                                    )
-                                })}
-
+                                {orderTableHeader.map((header, index) => (
+                                    <TableHead className={'px-4 py-6 text-lg'} key={index}>{header}</TableHead>
+                                ))}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {orderTableData.map((order, index) => {
-                                return (
-                                    <TableRow key={index}>
-                                        <TableCell
-                                            className={'px-4 py-6 text-blue-500 font-medium'}>{order.orderID}</TableCell>
-                                        <TableCell className={'px-4 py-6'}>{order.customer}</TableCell>
-                                        <TableCell className={'px-4 py-6'}>{order.date}</TableCell>
-                                        <TableCell className={'px-4 py-6'}>
-                                            <span
-                                                className={cn(
-                                                    "px-2 py-1 rounded-full text-xs font-medium",
-                                                    order.status === "Fulfilled" && "bg-green-100 text-green-700",
-                                                    order.status === "Pending" && "bg-blue-100 text-blue-700",
-                                                    order.status === "Canceled" && "bg-red-100 text-red-700"
-                                                )}
-                                            >
-                                                {order.status}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell className={'px-4 py-6'}>{`$${order.total}`}</TableCell>
-                                    </TableRow>
-                                )
-                            })}
+                            {data.recent_orders.map((order, index) => (
+                                <TableRow key={index}>
+                                    <TableCell className={'px-4 py-6 text-blue-500 font-medium'}>
+                                        <Link href={`/orders/${order.order_id}`}>
+                                            {order.order_id}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell className={'px-4 py-6'}>{order.customer_name}</TableCell>
+                                    <TableCell className={'px-4 py-6'}>{order.date}</TableCell>
+                                    <TableCell className={'px-4 py-6'}>
+                                        <span
+                                            className={cn(
+                                                "px-2 py-1 rounded-full text-xs font-medium uppercase",
+                                                order.status === "FULFILLED" && "bg-green-100 text-green-700",
+                                                order.status === "PENDING" && "bg-blue-100 text-blue-700",
+                                                order.status === "CANCELLED" && "bg-red-100 text-red-700"
+                                            )}
+                                        >
+                                            {order.status}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className={'px-4 py-6 font-bold'}>{`₹ ${order.total.toLocaleString()}`}</TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
                 </Card>
