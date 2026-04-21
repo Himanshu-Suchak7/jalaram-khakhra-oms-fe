@@ -1,6 +1,6 @@
 'use client'
 import {useEffect, useState} from "react";
-import {CircleCheckBig, CirclePlus, CircleX, ClipboardClock, DollarSign, MoveRight} from "lucide-react";
+import {CircleCheckBig, CirclePlus, CircleX, ClipboardClock, IndianRupee, MoveRight} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
 import OrderStatusChart from "@/components/OrderStatusChart";
@@ -10,6 +10,7 @@ import {cn} from "@/lib/utils";
 import Link from "next/link";
 import MainButton from "@/components/MainButton";
 import {getDashboardOverview} from "@/lib/dashboard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const orderTableHeader = ["ORDER ID", "CUSTOMER", "DATE", "STATUS", "TOTAL"]
 
@@ -29,7 +30,37 @@ export default function Home() {
             });
     }, []);
 
-    if (loading) return <div className="p-8 text-center text-2xl font-bold">Loading Dashboard...</div>;
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className={'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'}>
+                    <Skeleton className="h-10 w-44" />
+                    <Skeleton className="h-12 w-full sm:w-56" />
+                </div>
+                <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'}>
+                    {Array.from({ length: 4 }).map((_, idx) => (
+                        <Card key={idx}>
+                            <CardHeader className={'flex flex-row items-center justify-between'}>
+                                <Skeleton className="h-5 w-28" />
+                                <Skeleton className="h-5 w-5 rounded" />
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="h-7 w-24" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                <div className={'grid grid-cols-1 lg:grid-cols-2 gap-4'}>
+                    <Skeleton className="h-[360px] w-full rounded-xl" />
+                    <Skeleton className="h-[360px] w-full rounded-xl" />
+                </div>
+                <div className="space-y-3">
+                    <Skeleton className="h-7 w-40" />
+                    <Skeleton className="h-56 w-full rounded-xl" />
+                </div>
+            </div>
+        );
+    }
     if (!data) return <div className="p-8 text-center text-red-500 font-bold">Failed to load data</div>;
 
     const cardContents = [
@@ -54,7 +85,7 @@ export default function Home() {
         {
             title: 'Total Revenue',
             number: `₹ ${data.cards.total_revenue.toLocaleString()}`,
-            icon: DollarSign,
+            icon: IndianRupee,
             iconColor: "text-gray-400"
         }
     ];
@@ -70,11 +101,13 @@ export default function Home() {
 
     return (
         <>
-            <div className={'flex items-center justify-between'}>
+            <div className={'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'}>
                 <h1 className={'text-4xl font-bold'}>Dashboard</h1>
-                <Link href={'/orders/add-order'}>
-                    <MainButton content={'Add New Order'} Icon={CirclePlus}/>
-                </Link>
+                <div className="w-full sm:w-auto">
+                    <Link href={'/orders/add-order'}>
+                        <MainButton content={'Add New Order'} Icon={CirclePlus}/>
+                    </Link>
+                </div>
             </div>
             <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'}>
                 {cardContents.map((card, index) => {
@@ -97,7 +130,7 @@ export default function Home() {
                 <RevenueGraph data={data.revenue_overview}/>
             </div>
             <div className={'space-y-5'}>
-                <div className={'flex items-center justify-between'}>
+                <div className={'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'}>
                     <h2 className={'text-2xl font-bold'}>Recent Orders</h2>
                     <Button
                         variant="ghost"

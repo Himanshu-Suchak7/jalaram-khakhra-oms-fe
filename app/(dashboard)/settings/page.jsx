@@ -16,11 +16,13 @@ import ProfileAvatarUpload from "@/app/(dashboard)/settings/_components/ProfileA
 import {getCurrentUser, updateCurrentUser} from "@/lib/user";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {Spinner} from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Settings() {
-    const {accessToken} = useAuth();
+    const {accessToken, user} = useAuth();
     const queryClient = useQueryClient();
     const [isEdit, setIsEdit] = useState(false);
+    const isAdmin = user?.role === "admin";
 
     const form = useForm({
         resolver: zodResolver(createBusinessSchema),
@@ -151,6 +153,10 @@ export default function Settings() {
     });
 
     async function onSubmit(values) {
+        if (!isAdmin) {
+            toast.error("Only admins can edit business information.");
+            return;
+        }
         businessMutation.mutate(values);
     }
 
@@ -160,9 +166,19 @@ export default function Settings() {
 
     if (businessQuery.isLoading || userProfileQuery.isLoading) {
         return (
-            <div className={'flex flex-col items-center justify-center p-20 gap-4'}>
-                <Spinner className={'h-8 w-8'}/>
-                <p className={'text-lg text-gray-500'}>Loading Settings...</p>
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <Skeleton className="h-10 w-40" />
+                    <Skeleton className="h-5 w-2/3" />
+                </div>
+                <Skeleton className="h-12 w-full rounded-xl" />
+                <div className="rounded-xl border p-6 space-y-4">
+                    <Skeleton className="h-6 w-56" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-12 w-40" />
+                </div>
             </div>
         )
     }
@@ -175,11 +191,11 @@ export default function Settings() {
                     preferences.</p>
             </div>
             <div>
-                <Tabs defaultValue={'business-info'}>
-                    <TabsList className={'max-w-1/3 w-full'}>
-                        <TabsTrigger value={'business-info'} className={'cursor-pointer'}>Business
+                <Tabs defaultValue={isAdmin ? 'business-info' : 'personal-info'}>
+                    <TabsList className={'w-full grid grid-cols-2'}>
+                        <TabsTrigger value={'business-info'} className={'cursor-pointer w-full'}>Business
                             Information</TabsTrigger>
-                        <TabsTrigger value={'personal-info'} className={'cursor-pointer'}>Personal
+                        <TabsTrigger value={'personal-info'} className={'cursor-pointer w-full'}>Personal
                             Information</TabsTrigger>
                     </TabsList>
                     <TabsContent value={'business-info'}>
@@ -192,64 +208,73 @@ export default function Settings() {
                             </CardHeader>
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <CardContent className={'space-y-4 pb-6'}>
-                                    <div className={'space-y-2'}>
-                                        <Label htmlFor={'business-name'}>Business Name</Label>
-                                        {form.formState.errors.business_name && (
-                                            <p className={'text-xs text-red-600'}>{form.formState.errors.business_name.message}</p>
-                                        )}
-                                        <Input {...form.register("business_name")}
-                                               placeholder={'Enter your business name'}/>
-                                    </div>
-                                    <div className={'space-y-2'}>
-                                        <Label htmlFor={'business-address'}>Address</Label>
-                                        {form.formState.errors.business_address && (
-                                            <p className={'text-xs text-red-600'}>{form.formState.errors.business_address.message}</p>
-                                        )}
-                                        <Input {...form.register("business_address")}
-                                               placeholder={'Enter your business address'}/>
-                                    </div>
-                                    <div className={'space-y-2'}>
-                                        <Label htmlFor={'phone-number'}>Phone Number</Label>
-                                        {form.formState.errors.business_phone_number && (
-                                            <p className={'text-xs text-red-600'}>{form.formState.errors.business_phone_number.message}</p>
-                                        )}
-                                        <Input {...form.register("business_phone_number")}
-                                               placeholder={'Enter your phone number'}/>
-                                    </div>
-                                    <div className={'grid grid-cols-2 gap-6'}>
-                                        <div className={'space-y-2'}>
-                                            <Label htmlFor={'email-address'}>Email Address (Optional)</Label>
-                                            {form.formState.errors.business_email && (
-                                                <p className="text-xs text-red-600">{form.formState.errors.business_email.message}</p>
-                                            )}
-                                            <Input {...form.register("business_email")}
-                                                   placeholder={'Enter your email address'}/>
-                                        </div>
-                                        <div className={'space-y-2'}>
-                                            <Label htmlFor={'gst-number'}>GST Number (Optional)</Label>
-                                            {form.formState.errors.gst_number && (
-                                                <p className="text-xs text-red-600">{form.formState.errors.gst_number.message}</p>
-                                            )}
-                                            <Input {...form.register("gst_number")}
-                                                   placeholder={'Enter your gst number'}/>
-                                        </div>
-                                    </div>
-                                    <div className={'space-y-2'}>
-                                        <Label htmlFor={'upi-id'}>UPI ID</Label>
-                                        {form.formState.errors.upi_id && (
-                                            <p className="text-xs text-red-600">{form.formState.errors.upi_id.message}</p>
-                                        )}
-                                        <Input {...form.register("upi_id")}
-                                               placeholder={"Enter your UPI ID"}/>
-                                    </div>
-                                    {form.formState.errors.upi_qr_image && (
-                                        <p className={'text-xs text-red-600'}>{form.formState.errors.upi_qr_image.message}</p>
+                                    {!isAdmin && (
+                                        <p className="text-sm text-amber-600 font-medium">
+                                            You can view business information, but only admins can edit it.
+                                        </p>
                                     )}
-                                    <UpiQR label={'Upload UPI QR Code'} value={form.watch('upi_qr_image')}
-                                           onChange={(file) => form.setValue("upi_qr_image", file)}/>
+                                    <fieldset disabled={!isAdmin} className="space-y-4">
+                                        <div className={'space-y-2'}>
+                                            <Label htmlFor={'business-name'}>Business Name</Label>
+                                            {form.formState.errors.business_name && (
+                                                <p className={'text-xs text-red-600'}>{form.formState.errors.business_name.message}</p>
+                                            )}
+                                            <Input {...form.register("business_name")}
+                                                   placeholder={'Enter your business name'}/>
+                                        </div>
+                                        <div className={'space-y-2'}>
+                                            <Label htmlFor={'business-address'}>Address</Label>
+                                            {form.formState.errors.business_address && (
+                                                <p className={'text-xs text-red-600'}>{form.formState.errors.business_address.message}</p>
+                                            )}
+                                            <Input {...form.register("business_address")}
+                                                   placeholder={'Enter your business address'}/>
+                                        </div>
+                                        <div className={'space-y-2'}>
+                                            <Label htmlFor={'phone-number'}>Phone Number</Label>
+                                            {form.formState.errors.business_phone_number && (
+                                                <p className={'text-xs text-red-600'}>{form.formState.errors.business_phone_number.message}</p>
+                                            )}
+                                            <Input {...form.register("business_phone_number")}
+                                                   placeholder={'Enter your phone number'}/>
+                                        </div>
+                                        <div className={'grid grid-cols-1 md:grid-cols-2 gap-6'}>
+                                            <div className={'space-y-2'}>
+                                                <Label htmlFor={'email-address'}>Email Address (Optional)</Label>
+                                                {form.formState.errors.business_email && (
+                                                    <p className="text-xs text-red-600">{form.formState.errors.business_email.message}</p>
+                                                )}
+                                                <Input {...form.register("business_email")}
+                                                       placeholder={'Enter your email address'}/>
+                                            </div>
+                                            <div className={'space-y-2'}>
+                                                <Label htmlFor={'gst-number'}>GST Number (Optional)</Label>
+                                                {form.formState.errors.gst_number && (
+                                                    <p className="text-xs text-red-600">{form.formState.errors.gst_number.message}</p>
+                                                )}
+                                                <Input {...form.register("gst_number")}
+                                                       placeholder={'Enter your gst number'}/>
+                                            </div>
+                                        </div>
+                                        <div className={'space-y-2'}>
+                                            <Label htmlFor={'upi-id'}>UPI ID</Label>
+                                            {form.formState.errors.upi_id && (
+                                                <p className="text-xs text-red-600">{form.formState.errors.upi_id.message}</p>
+                                            )}
+                                            <Input {...form.register("upi_id")}
+                                                   placeholder={"Enter your UPI ID"}/>
+                                        </div>
+                                        {form.formState.errors.upi_qr_image && (
+                                            <p className={'text-xs text-red-600'}>{form.formState.errors.upi_qr_image.message}</p>
+                                        )}
+                                        <UpiQR label={'Upload UPI QR Code'} value={form.watch('upi_qr_image')}
+                                               disabled={!isAdmin}
+                                               onChange={(file) => form.setValue("upi_qr_image", file)}/>
+                                    </fieldset>
                                 </CardContent>
                                 <CardFooter className={'border-t'}>
                                     <MainButton type={"submit"} loading={businessMutation.isPending}
+                                                disabled={!isAdmin || businessMutation.isPending}
                                                 content={isEdit ? "Update Business" : "Save Business"}/>
                                 </CardFooter>
                             </form>
@@ -279,7 +304,7 @@ export default function Settings() {
                                         <Input {...personalInfoForm.register("name")}
                                                placeholder={'Enter your name'}/>
                                     </div>
-                                    <div className={'grid grid-cols-2 gap-6 mb-6'}>
+                                    <div className={'grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'}>
                                         <div className={'space-y-2'}>
                                             <Label htmlFor={'phone-number'}>Phone Number</Label>
                                             {personalInfoForm.formState.errors.phone_number && (
@@ -309,4 +334,4 @@ export default function Settings() {
             </div>
         </>
     )
-}
+}

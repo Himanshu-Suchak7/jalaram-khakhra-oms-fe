@@ -12,20 +12,20 @@ export default function InvoiceDocument({ data }) {
     return (
         <div id="invoice-root">
             <Card>
-                <CardHeader className={'flex flex-row items-start justify-between border-b'}>
+                <CardHeader className={'flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b'}>
                     <div>
                         <h2 className={'text-2xl font-bold mb-1'}>{data.business.name}</h2>
                         <p className={'text-gray-500'}>{data.business.address}</p>
                         <p className={'text-gray-500'}>{data.business.phone} | GSTIN: {data.business.gstin || 'N/A'}</p>
                         <p className={'text-gray-500'}>UPI: {data.business.upi_id}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="sm:text-right">
                         <h2 className={'text-2xl font-bold mb-1'}>INVOICE</h2>
                         <p className={'text-gray-500'}>Invoice Number: {data.invoice_number}</p>
                         <p className={'text-gray-500'}>Invoice Date: {data.invoice_date}</p>
                     </div>
                 </CardHeader>
-                <div className={'p-6 pt-8 border-b'}>
+                <div className={'p-4 pt-6 sm:p-6 sm:pt-8 border-b'}>
                     <p className={'text-lg font-medium'}>Bill To</p>
                     <div className={'bg-gray-100 p-4 border border-gray-200 rounded-lg mt-2'}>
                         <p className={'text-lg font-medium'}>{data.bill_to.name}</p>
@@ -53,7 +53,7 @@ export default function InvoiceDocument({ data }) {
                             </TableBody>
                         </Table>
                     </div>
-                    <div className={'flex items-center justify-between mt-6'}>
+                    <div className={'flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between mt-6'}>
                         <div>
                             <div className={'flex flex-col items-center'}>
                                 <div className="bg-white p-2 border rounded-lg mb-2">
@@ -62,7 +62,7 @@ export default function InvoiceDocument({ data }) {
                                 <p className={'text-gray-500 font-medium'}>Scan to pay with any UPI App</p>
                             </div>
                         </div>
-                        <div className={'w-1/3'}>
+                        <div className={'w-full sm:w-1/3'}>
                             <div className={'border-b space-y-2 pb-2'}>
                                 <div className={'flex items-center justify-between'}>
                                     <p className={'text-lg text-gray-400 font-medium'}>Subtotal</p>

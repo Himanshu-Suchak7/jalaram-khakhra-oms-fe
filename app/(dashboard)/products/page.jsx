@@ -9,9 +9,9 @@ import ProductPopUp from "@/app/(dashboard)/products/_components/ProductPopUp";
 import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
 import {getProducts, deleteProduct} from "@/lib/product";
 import {useAuth} from "@/lib/auth-context";
-import {Spinner} from "@/components/ui/spinner";
 import MainButton from "@/components/MainButton";
 import {toast} from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -35,7 +35,7 @@ export default function Products() {
 
     const {
         data: products = [],
-        isLoading,
+        isLoading: loading,
         isError,
         refetch
     } = useQuery({
@@ -93,65 +93,79 @@ export default function Products() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-                <Spinner className="w-10 h-10"/>
-                <p className="text-gray-500 font-medium animate-pulse">Fetching your products...</p>
-            </div>
-        );
-    }
-
     if (isError) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-                <p className="text-red-500 font-medium text-lg">Failed to load products</p>
-                <Button onClick={() => refetch()} variant="outline" className="rounded-xl px-8">Retry Connection</Button>
+                <p className="text-red-500 font-bold text-xl">Failed to load products</p>
+                <Button onClick={() => refetch()} variant="outline" className="rounded-xl px-8 h-12 text-lg">Retry Connection</Button>
             </div>
         )
     }
 
     return (
         <div className="space-y-8">
-            <div className={'flex items-center justify-between'}>
+            <div className={'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'}>
                 <div className="space-y-1">
-                    <h1 className={'text-4xl font-bold'}>Products</h1>
-                    <p className="text-gray-500">Manage your product catalog and pricing.</p>
+                    <h1 className={'text-4xl font-bold font-heading'}>Products Catalog</h1>
+                    <p className="text-gray-500 font-medium text-lg">Manage your product catalog, images, and pricing.</p>
                 </div>
-                <MainButton
-                    content={'Add Product'}
-                    Icon={Plus}
-                    onClick={handleAdd}
-                />
+                <div className="w-full sm:w-auto">
+                    <MainButton
+                        content={'Add New Product'}
+                        Icon={Plus}
+                        onClick={handleAdd}
+                    />
+                </div>
             </div>
 
-            {products.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-20 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100 gap-6">
-                    <div className="bg-white p-6 rounded-3xl shadow-sm">
-                        <PackageOpen className="w-16 h-16 text-blue-400"/>
+            {loading ? (
+                <>
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <Skeleton className="h-14 w-full rounded-xl" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {Array.from({ length: 6 }).map((_, idx) => (
+                            <Card key={idx} className="overflow-hidden border-gray-100 rounded-2xl shadow-sm">
+                                <Skeleton className="h-60 w-full" />
+                                <CardContent className="pt-6 space-y-3">
+                                    <Skeleton className="h-7 w-3/4" />
+                                    <Skeleton className="h-5 w-1/3" />
+                                </CardContent>
+                                <CardFooter className="pb-6 pt-2 flex gap-3">
+                                    <Skeleton className="h-12 flex-1 rounded-xl" />
+                                    <Skeleton className="h-12 w-12 rounded-xl" />
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+                </>
+            ) : products.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-20 bg-gray-50 border-2 border-dashed border-gray-100 rounded-3xl gap-6">
+                    <div className="bg-white p-8 rounded-full shadow-sm">
+                        <PackageOpen className="w-20 h-20 text-blue-400"/>
                     </div>
                     <div className="text-center space-y-2">
-                        <h2 className="text-2xl font-bold text-gray-800">Your shelf is empty!</h2>
-                        <p className="text-gray-500 max-w-sm">
-                            You haven&#39;t added any products yet. Let&#39;s get started and add your first product to the catalog.
+                        <h2 className="text-3xl font-bold text-gray-800">Your shelf is empty!</h2>
+                        <p className="text-gray-500 text-lg max-w-sm">
+                            You haven&#39;t added any products yet. Start building your catalog today.
                         </p>
                     </div>
                     <Button
                         onClick={handleAdd}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg shadow-blue-500/20"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-7 rounded-2xl text-xl font-bold shadow-xl shadow-blue-500/20"
                     >
-                        <Plus className="w-5 h-5 mr-2" /> Add My First Product
+                        <Plus className="w-6 h-6 mr-2" /> Add My First Product
                     </Button>
                 </div>
             ) : (
                 <>
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                         <div className={'w-full relative shadow-sm rounded-xl'}>
-                            <Search className={'absolute left-3 top-[50%] -translate-y-1/2 h-4 w-4 text-muted-foreground'}/>
+                            <Search className={'absolute left-4 top-[50%] -translate-y-1/2 h-5 w-5 text-muted-foreground'}/>
                             <Input
-                                className={'pl-10 h-14 rounded-xl text-lg border-gray-100 focus:border-blue-400 transition-all'}
+                                className={'pl-12 h-14 rounded-xl text-lg border-gray-100 focus:border-blue-400 transition-all font-medium'}
                                 type={'text'}
-                                placeholder={'Search a product by name'}
+                                placeholder={'Search in your catalog...'}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -160,43 +174,43 @@ export default function Products() {
 
                     {filteredProducts.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-                            <div className="bg-gray-100 p-4 rounded-full">
-                                <Search className="w-10 h-10 text-gray-400" />
+                            <div className="bg-gray-100 p-6 rounded-full">
+                                <Search className="w-12 h-12 text-gray-400" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold">No results found</h3>
-                                <p className="text-gray-500">We couldn&#39;t find any products matching &#34;{searchQuery}&#34;</p>
+                                <h3 className="text-2xl font-bold">No products found</h3>
+                                <p className="text-gray-500 text-lg">We couldn&#39;t find any matches for &#34;{searchQuery}&#34;</p>
                             </div>
-                            <Button variant="ghost" onClick={() => setSearchQuery("")} className="text-blue-600">Clear Search</Button>
+                            <Button variant="ghost" onClick={() => setSearchQuery("")} className="text-blue-600 font-bold hover:bg-blue-50">Clear Search</Button>
                         </div>
                     ) : (
-                        <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'}>
+                        <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'}>
                             {filteredProducts.map((product) => (
-                                <Card key={product.id} className={'group hover:shadow-xl transition-all duration-300 border-gray-100/60 flex flex-col'}>
-                                    <div className={'relative h-56 w-full pt-4'}>
+                                <Card key={product.id} className={'group hover:shadow-2xl transition-all duration-300 border-gray-100/60 rounded-2xl flex flex-col overflow-hidden bg-white'}>
+                                    <div className={'relative h-60 w-full pt-4 bg-gray-50/30'}>
                                         <Image
                                             src={renderProductImage(product)}
                                             alt={product.name}
                                             fill
-                                            className={'object-contain group-hover:scale-105 transition-transform duration-500 p-2'}
+                                            className={'object-contain group-hover:scale-110 transition-transform duration-500 p-4'}
                                         />
                                     </div>
-                                    <CardContent className="pt-6 flex-grow">
-                                        <h3 className={'text-2xl font-bold text-black'}>{product.name}</h3>
-                                        <p className="text-gray-600 font-medium text-lg mt-1">₹ {product.price}</p>
+                                    <CardContent className="pt-6 flex-grow px-6">
+                                        <h3 className={'text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors'}>{product.name}</h3>
+                                        <p className="text-blue-600 font-bold text-xl mt-2 tracking-tight">₹ {product.price}</p>
                                     </CardContent>
-                                    <CardFooter className="pt-2 pb-6 flex items-center gap-2 px-6">
+                                    <CardFooter className="pt-2 pb-6 flex items-center gap-3 px-6">
                                         <Button
                                             onClick={() => handleEdit(product)}
-                                            className={'bg-blue-100 text-blue-700 flex-1 text-lg py-6 rounded-xl hover:bg-blue-200 transition-all shadow-none font-semibold border-none'}>
-                                            Edit
+                                            className={'bg-blue-600 text-white flex-1 text-lg py-7 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/10 font-bold border-none'}>
+                                            Edit Details
                                         </Button>
                                         <Button
                                             onClick={() => requestDelete(product.id)}
                                             variant="outline"
-                                            className="p-4 h-auto rounded-xl text-red-500 border-red-50 hover:bg-red-50 hover:text-red-600 transition-all"
+                                            className="p-5 h-auto rounded-xl text-red-500 border-red-50 hover:bg-red-50 hover:text-red-600 transition-all border-2"
                                         >
-                                            <Trash2 className="w-5 h-5" />
+                                            <Trash2 className="w-6 h-6" />
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -213,23 +227,23 @@ export default function Products() {
             />
 
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent className="rounded-2xl border-none shadow-2xl">
+                <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-2xl font-bold flex items-center gap-3 text-red-600">
-                            <AlertCircle className="w-8 h-8" />
-                            Are you absolutely sure?
+                        <AlertDialogTitle className="text-2xl sm:text-3xl font-bold flex flex-col sm:flex-row sm:items-center gap-3 text-red-600">
+                            <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                            <span>Are you absolutely sure?</span>
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-lg text-gray-600 pt-2">
+                        <AlertDialogDescription className="text-xl text-gray-600 pt-3">
                             This action cannot be undone. This will permanently delete the product from your catalog and remove its data from our servers.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="gap-3 pt-6">
-                        <AlertDialogCancel className="rounded-xl px-6 py-6 border-gray-200 text-lg font-medium hover:bg-gray-50 transition-all">
+                    <AlertDialogFooter className="gap-4 pt-8">
+                        <AlertDialogCancel className="rounded-2xl px-8 py-7 border-none bg-gray-50 text-xl font-bold hover:bg-gray-100 transition-all">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={confirmDelete}
-                            className="rounded-xl px-8 py-6 bg-red-600 hover:bg-red-700 text-white text-lg font-bold shadow-lg shadow-red-500/20 transition-all"
+                            className="rounded-2xl px-10 py-7 bg-red-600 hover:bg-red-700 text-white text-xl font-bold shadow-xl shadow-red-500/20 transition-all"
                         >
                             {deleteMutation.isPending ? "Deleting..." : "Yes, Delete Product"}
                         </AlertDialogAction>
@@ -239,5 +253,3 @@ export default function Products() {
         </div>
     )
 }
-
-

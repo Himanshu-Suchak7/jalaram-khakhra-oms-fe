@@ -13,7 +13,7 @@ import ChangePassword from "@/app/(dashboard)/users/_components/ChangePassword";
 import {useAuth} from "@/lib/auth-context";
 import {getUsers, updateUserRole, deleteUser} from "@/lib/user";
 import {toast} from "sonner";
-import {Spinner} from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
     AlertDialog,
@@ -26,7 +26,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-const userTableHeader = ['Name', 'PHONE', 'ROLE', 'STATUS', 'ACTIONS']
+const userTableHeader = ['User Name', 'PHONE NUMBER', 'USER ROLE', 'STATUS', 'ACTIONS']
 
 export default function Users() {
     const {accessToken} = useAuth();
@@ -107,14 +107,14 @@ export default function Users() {
 
     return (
         <div className="space-y-8">
-            <div className={'flex items-center justify-between'}>
+            <div className={'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'}>
                 <div className={'space-y-1'}>
-                    <h1 className={'text-4xl font-bold'}>User Management</h1>
-                    <p className={'text-gray-500 font-medium'}>Manage roles and access for your team.</p>
+                    <h1 className={'text-4xl font-bold font-heading'}>Team & Access</h1>
+                    <p className={'text-gray-500 font-medium text-lg'}>Manage roles and permissions for your team members.</p>
                 </div>
-                <div className={'flex items-center gap-4'}>
-                    <p className={'bg-blue-100 text-blue-700 font-bold rounded-full px-4 py-2 text-sm shadow-sm'}>Admin Area</p>
-                    <MainButton content={'Add User'} Icon={Plus} onClick={() => setOpenAddUserModal(true)}/>
+                <div className={'w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4'}>
+                    <p className={'bg-blue-100 text-blue-700 font-bold rounded-full px-5 py-2.5 text-sm shadow-sm text-center tracking-wide'}>Administrator Controls</p>
+                    <MainButton content={'Register New User'} Icon={Plus} onClick={() => setOpenAddUserModal(true)}/>
                 </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function Users() {
                     <div className={'w-full sm:max-w-md relative shadow-sm rounded-xl'}>
                         <Search className={'absolute left-4 top-[50%] -translate-y-1/2 h-5 w-5 text-muted-foreground'}/>
                         <Input 
-                            className={'pl-11 h-12 rounded-xl text-lg border-gray-100 focus:border-blue-400 transition-all'} 
+                            className={'pl-12 h-14 rounded-xl text-lg border-gray-100 focus:border-blue-400 transition-all font-medium'} 
                             type={'text'} 
                             placeholder={'Search by name or phone...'}
                             value={searchQuery}
@@ -131,80 +131,91 @@ export default function Users() {
                         />
                     </div>
 
-                    {loading ? (
-                        <div className={'flex flex-col items-center justify-center py-20 gap-4'}>
-                            <Spinner className="w-10 h-10"/>
-                            <p className="text-gray-500 font-medium animate-pulse">Fetching users...</p>
-                        </div>
-                    ) : (
-                        <div className="rounded-xl border border-gray-100 overflow-hidden">
-                            <Table>
-                                <TableHeader className={'bg-gray-50/50'}>
-                                    <TableRow className="hover:bg-transparent border-gray-100">
-                                        {userTableHeader.map((header, index) => (
-                                            <TableHead className={'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider'} key={index}>
-                                                {header}
-                                            </TableHead>
-                                        ))}
+                    <div className="rounded-xl border border-gray-100 overflow-hidden">
+                        <Table>
+                            <TableHeader className={'bg-gray-50/50'}>
+                                <TableRow className="hover:bg-transparent border-gray-100">
+                                    {userTableHeader.map((header) => (
+                                        <TableHead className={'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider'} key={header}>
+                                            {header}
+                                        </TableHead>
+                                    ))}
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {loading ? (
+                                    Array.from({ length: 5 }).map((_, idx) => (
+                                        <TableRow key={idx}>
+                                            <TableCell className="px-6 py-5">
+                                                <div className="flex items-center gap-4">
+                                                    <Skeleton className="h-14 w-14 rounded-full" />
+                                                    <div className="space-y-2">
+                                                        <Skeleton className="h-5 w-32" />
+                                                        <Skeleton className="h-4 w-24" />
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="px-6 py-5"><Skeleton className="h-5 w-28" /></TableCell>
+                                            <TableCell className="px-6 py-5"><Skeleton className="h-7 w-20 rounded-full" /></TableCell>
+                                            <TableCell className="px-6 py-5"><Skeleton className="h-7 w-20 rounded-full" /></TableCell>
+                                            <TableCell className="px-6 py-5 text-right"><Skeleton className="h-10 w-10 ml-auto rounded-lg" /></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : filteredUsers.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-40 text-center text-gray-500 font-medium">
+                                            No users found matching your search.
+                                        </TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredUsers.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={userTableHeader.length} className="h-40 text-center text-gray-500 font-medium">
-                                                No users found matching your search.
+                                ) : (
+                                    filteredUsers.map((user) => (
+                                        <TableRow key={user.id} className="group hover:bg-gray-50/50 border-gray-100 transition-colors">
+                                            <TableCell className={'px-6 py-5'}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className={'relative w-14 h-14 overflow-hidden rounded-full ring-4 ring-gray-50 shadow-sm border border-gray-100'}>
+                                                        <Image 
+                                                            src={user.profile_picture || "/jalaram-bapa-image.png"} 
+                                                            fill 
+                                                            className={'object-cover'}
+                                                            alt={user.name}
+                                                        />
+                                                    </div>
+                                                    <div className={'flex flex-col'}>
+                                                        <span className={'text-xl font-bold text-gray-900'}>{user.name}</span>
+                                                        <span className={'text-sm text-gray-500 font-medium'}>{user.email || 'No email provided'}</span>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>{user.phone_number}</TableCell>
+                                            <TableCell className={'px-6 py-5'}>
+                                                <span className={cn('px-4 py-1.5 rounded-full text-xs font-bold tracking-wider inline-flex items-center',
+                                                    user.role === 'admin' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-gray-100 text-gray-700 border border-gray-200',
+                                                )}>
+                                                    {user.role.toUpperCase()}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="px-6 py-5">
+                                                <span className={cn("px-4 py-1.5 rounded-full text-xs font-bold tracking-wider inline-flex items-center gap-2",
+                                                    user.is_active ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"
+                                                )}>
+                                                    <span className={cn("w-2 h-2 rounded-full animate-pulse", user.is_active ? "bg-green-600" : "bg-red-600")}></span>
+                                                    {user.is_active ? "ACTIVE" : "INACTIVE"}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className={'px-6 py-5 text-right'}>
+                                                <UserActionMenu 
+                                                    user={user}
+                                                    onChangePassword={handleChangePassword}
+                                                    onUpdateRole={handleUpdateRole}
+                                                    onDelete={requestDelete}
+                                                />
                                             </TableCell>
                                         </TableRow>
-                                    ) : (
-                                        filteredUsers.map((user) => (
-                                            <TableRow key={user.id} className="group hover:bg-gray-50/50 border-gray-100 transition-colors">
-                                                <TableCell className={'px-6 py-5'}>
-                                                    <div className="flex items-center gap-4">
-                                                        <div className={'relative w-12 h-12 overflow-hidden rounded-full ring-2 ring-gray-50 shadow-sm'}>
-                                                            <Image 
-                                                                src={user.profile_picture || "/jalaram-bapa-image.png"} 
-                                                                fill 
-                                                                className={'object-cover'}
-                                                                alt={user.name}
-                                                            />
-                                                        </div>
-                                                        <div className={'flex flex-col'}>
-                                                            <span className={'text-lg font-bold text-gray-900 line-clamp-1'}>{user.name}</span>
-                                                            <span className={'text-sm text-gray-500 font-medium'}>{user.email || 'No email provided'}</span>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className={'px-6 py-5 font-bold text-gray-700'}>{user.phone_number}</TableCell>
-                                                <TableCell className={'px-6 py-5'}>
-                                                    <span className={cn('px-3 py-1 rounded-full text-xs font-bold tracking-tight',
-                                                        user.role === 'admin' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-gray-100 text-gray-700 border border-gray-200',
-                                                    )}>
-                                                        {user.role.toUpperCase()}
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell className="px-6 py-5">
-                                                    <span className={cn("px-3 py-1 rounded-full text-xs font-bold tracking-tight inline-flex items-center gap-1.5",
-                                                        user.is_active ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"
-                                                    )}>
-                                                        <span className={cn("w-1.5 h-1.5 rounded-full", user.is_active ? "bg-green-600" : "bg-red-600")}></span>
-                                                        {user.is_active ? "ACTIVE" : "INACTIVE"}
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell className={'px-6 py-5 text-right'}>
-                                                    <UserActionMenu 
-                                                        user={user}
-                                                        onChangePassword={handleChangePassword}
-                                                        onUpdateRole={handleUpdateRole}
-                                                        onDelete={requestDelete}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    )}
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </div>
             </Card>
 
@@ -217,25 +228,25 @@ export default function Users() {
             />
 
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent className="rounded-2xl border-none shadow-2xl">
+                <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-2xl font-bold flex items-center gap-3 text-red-600">
-                            <AlertCircle className="w-8 h-8" />
-                            Are you absolutely sure?
+                        <AlertDialogTitle className="text-2xl sm:text-3xl font-bold flex flex-col sm:flex-row sm:items-center gap-3 text-red-600">
+                            <AlertCircle className="w-10 h-10" />
+                            <span>Are you absolutely sure?</span>
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-lg text-gray-600 pt-2 font-medium">
-                            This action cannot be undone. This will permanently delete the user account and revoke all their permissions.
+                        <AlertDialogDescription className="text-xl text-gray-600 pt-3 font-medium">
+                            This action cannot be undone. This will permanently delete the user account and revoke all their permissions immediately.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="gap-3 pt-6">
-                        <AlertDialogCancel className="rounded-xl px-6 py-5 border-none bg-gray-50 text-lg font-medium hover:bg-gray-100 transition-all">
+                    <AlertDialogFooter className="gap-4 pt-8">
+                        <AlertDialogCancel className="rounded-2xl px-10 py-7 border-none bg-gray-50 text-xl font-bold hover:bg-gray-100 transition-all">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={confirmDelete}
-                            className="rounded-xl px-8 py-5 bg-red-600 hover:bg-red-700 text-white text-lg font-bold shadow-lg shadow-red-500/20 transition-all"
+                            className="rounded-2xl px-12 py-7 bg-red-600 hover:bg-red-700 text-white text-xl font-bold shadow-xl shadow-red-500/20 transition-all"
                         >
-                            {deleteMutation.isPending ? "Deleting..." : "Yes, Delete User"}
+                            {deleteMutation.isPending ? "Deleting..." : "Yes, Delete User Account"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

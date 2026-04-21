@@ -17,6 +17,8 @@ import {cn} from "@/lib/utils";
 import {logout} from "@/lib/auth";
 import {toast} from "sonner";
 import {useAuth} from "@/lib/auth-context";
+import React from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 
 const navItems = [
@@ -53,10 +55,17 @@ const navItems = [
 ];
 
 export function AppSidebar() {
-    const pathName = usePathname();
+    const pathname = usePathname();
     const router = useRouter();
     const {setAccessToken, setUser} = useAuth();
     const {user} = useAuth();
+    const { isMobile, openMobile, setOpenMobile } = useSidebar();
+
+    React.useEffect(() => {
+        if (isMobile && openMobile) {
+            setOpenMobile(false);
+        }
+    }, [pathname]); // Only close when pathname changes
     async function handleLogout() {
         try {
             await logout();
@@ -68,7 +77,7 @@ export function AppSidebar() {
             toast.error("Logout Failed");
         }
     }
-    const pathname = usePathname();
+
     return (
         <Sidebar>
             <SidebarHeader className={'border-b'}>
@@ -90,7 +99,9 @@ export function AppSidebar() {
                         <SidebarMenu>
                             {navItems.map((item) => {
                                 const Icon = item.icon;
-                                const isActive = pathname === item.href;
+                                const isActive = item.href === "/"
+                                    ? pathname === "/"
+                                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
                                 return (
                                     <SidebarMenuItem key={item.href}>
                                         <SidebarMenuButton asChild className={cn(
@@ -114,7 +125,7 @@ export function AppSidebar() {
                                         className={cn(
                                             "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
                                             "hover:bg-blue-100 hover:text-blue-700",
-                                            pathname === "/users" && "bg-blue-100 text-blue-700 font-bold"
+                                            (pathname === "/users" || pathname.startsWith("/users/")) && "bg-blue-100 text-blue-700 font-bold"
                                         )}
                                     >
                                         <Link href="/users">

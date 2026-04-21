@@ -2,11 +2,12 @@ import {useDropzone} from "react-dropzone";
 import {cn} from "@/lib/utils";
 import Image from "next/image";
 
-export default function UpiQR({value, onChange, label = 'Upload UPI QR Code'}) {
+export default function UpiQR({value, onChange, label = 'Upload UPI QR Code', disabled = false}) {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
     const {getRootProps, getInputProps} = useDropzone({
         accept: {"image/*": []},
         multiple: false,
+        disabled,
         onDrop: (acceptedFiles) => {
             if (acceptedFiles?.length) {
                 onChange(acceptedFiles[0]);
@@ -29,7 +30,8 @@ export default function UpiQR({value, onChange, label = 'Upload UPI QR Code'}) {
                 className={cn(
                     "border-2 border-dashed rounded-lg p-6 cursor-pointer",
                     "flex flex-col items-center justify-center gap-2",
-                    "hover:border-blue-500"
+                    !disabled && "hover:border-blue-500",
+                    disabled && "cursor-not-allowed opacity-60"
                 )}
             >
                 <input {...getInputProps()} />

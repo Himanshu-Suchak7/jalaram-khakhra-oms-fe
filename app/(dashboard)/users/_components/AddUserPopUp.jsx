@@ -11,10 +11,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserSchema } from "@/lib/validator/schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 export default function AddUserPopUp({ open, onOpenChange, onSuccess }) {
     const { accessToken } = useAuth();
     const queryClient = useQueryClient();
+    const [showPassword, setShowPassword] = useState(false);
 
     const {
         register,
@@ -91,7 +94,17 @@ export default function AddUserPopUp({ open, onOpenChange, onSuccess }) {
 
                     <div className={"space-y-2"}>
                         <Label>Password</Label>
-                        <Input type="password" {...register("password")} />
+                        <div className="relative">
+                            <Input type={showPassword ? "text" : "password"} className="pr-10" {...register("password")} />
+                            <button
+                                type="button"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                onClick={() => setShowPassword((s) => !s)}
+                            >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                        </div>
                         {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
                     </div>
 

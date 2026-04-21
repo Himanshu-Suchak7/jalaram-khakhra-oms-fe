@@ -13,7 +13,7 @@ import Link from "next/link";
 import {cn} from "@/lib/utils";
 import {getCustomers} from "@/lib/customer";
 import {getInventory} from "@/lib/inventory";
-import {createOrder} from "@/lib/orders";
+import {createOrder, updateOrder} from "@/lib/orders";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
@@ -39,7 +39,29 @@ export default function OrderForm({mode = 'add', order}) {
     useEffect(() => {
         getCustomers().then(setCustomers).catch(console.error);
         getInventory().then(res => setAllProducts(res.data)).catch(console.error);
-    }, []);
+
+        if (isEdit && order) {
+            const o = order.order;
+            setSelectedCustomer({
+                id: o.customer_id,
+                name: o.customer_name,
+                phone_number: o.customer_phone_number
+            });
+            if (o.created_at) setDate(new Date(o.created_at));
+            setNotes(o.notes || "");
+            
+            if (order.items) {
+                setItems(order.items.map(i => ({
+                    product_id: i.product_id,
+                    name: i.product_name,
+                    quantity: String(i.quantity_kg),
+                    price: String(i.price_per_kg),
+                    image: "", 
+                    stock: 999 
+                })));
+            }
+        }
+    }, [order, isEdit]);
 
     const subtotal = items.reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.price || 0)), 0);
     const tax = subtotal * 0.18;
@@ -72,12 +94,18 @@ export default function OrderForm({mode = 'add', order}) {
                 })),
                 notes
             };
-            await createOrder(payload);
-            toast.success("Order created successfully");
+            
+            if (isEdit) {
+                await updateOrder(order.order.id, payload);
+                toast.success("Order updated successfully");
+            } else {
+                await createOrder(payload);
+                toast.success("Order created successfully");
+            }
             router.push("/orders");
         } catch (err) {
             console.error(err);
-            toast.error("Failed to save order");
+            toast.error(isEdit ? "Failed to update order" : "Failed to create order");
         } finally {
             setLoading(false);
         }
@@ -87,8 +115,8 @@ export default function OrderForm({mode = 'add', order}) {
         <Card className="max-w-5xl mx-auto">
             <CardHeader className={'border-b bg-gray-50/50'}>
                 <CardTitle className={'text-lg'}>Customer & Date</CardTitle>
-                <div className={'flex items-center gap-4 mt-4'}>
-                    <div className={'w-1/2 space-y-2'}>
+                <div className={'flex flex-col sm:flex-row sm:items-center gap-4 mt-4'}>
+                    <div className={'w-full sm:w-1/2 space-y-2'}>
                         <Label>Customer Name</Label>
                         <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
                             <PopoverTrigger asChild>
@@ -104,7 +132,7 @@ export default function OrderForm({mode = 'add', order}) {
                                     <ChevronDownIcon className="h-4 w-4 opacity-50"/>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-[400px] p-0" align="start">
+                            <PopoverContent className="w-[min(400px,calc(100vw-2rem))] p-0" align="start">
                                 <div className="p-2 border-b">
                                     <div className="relative">
                                         <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"/>
@@ -139,7 +167,7 @@ export default function OrderForm({mode = 'add', order}) {
                             </PopoverContent>
                         </Popover>
                     </div>
-                    <div className={'w-1/2 space-y-2'}>
+                    <div className={'w-full sm:w-1/2 space-y-2'}>
                         <Label className="px-1">Order Date</Label>
                         <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                             <PopoverTrigger asChild>
@@ -148,7 +176,7 @@ export default function OrderForm({mode = 'add', order}) {
                                     <ChevronDownIcon className="h-4 w-4 opacity-50"/>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent className="w-[min(340px,calc(100vw-2rem))] p-0" align="start">
                                 <Calendar mode="single" selected={date} onSelect={(d) => { setDate(d); setDatePopoverOpen(false); }} />
                             </PopoverContent>
                         </Popover>
@@ -175,7 +203,7 @@ export default function OrderForm({mode = 'add', order}) {
                                             {item.product_id ? (
                                                 <div className="flex items-center gap-2 overflow-hidden">
                                                     <div className="w-6 h-6 flex-shrink-0">
-                                                        <img src={item.image || "/placeholder.png"} className="w-full h-full object-cover rounded" />
+                                                        <img src={item.image || "/placeholder.png"} alt={item.name || "product"} className="w-full h-full object-cover rounded" />
                                                     </div>
                                                     <span className="truncate">{item.name}</span>
                                                 </div>
@@ -183,7 +211,7 @@ export default function OrderForm({mode = 'add', order}) {
                                             <ChevronDownIcon className="h-4 w-4 opacity-50"/>
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-[350px] p-0" align="start">
+                                    <PopoverContent className="w-[min(350px,calc(100vw-2rem))] p-0" align="start">
                                         <div className="max-h-[300px] overflow-y-auto p-1">
                                             {(allProducts || []).map(p => (
                                                 <div 
@@ -204,7 +232,7 @@ export default function OrderForm({mode = 'add', order}) {
                                                     }}
                                                     className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-md cursor-pointer"
                                                 >
-                                                    <img src={p.image || "/placeholder.png"} className="w-10 h-10 object-cover rounded border" />
+                                                        <img src={p.image || "/placeholder.png"} alt={p.product_name || "product"} className="w-10 h-10 object-cover rounded border" />
                                                     <div className="flex-1">
                                                         <p className="font-medium">{p.product_name}</p>
                                                         <div className="flex items-center justify-between">
@@ -274,7 +302,7 @@ export default function OrderForm({mode = 'add', order}) {
             </div>
 
             <div className={'grid grid-cols-1 md:grid-cols-2 gap-8 px-6 py-8'}>
-                <div className={'space-y-2'}>
+                <div className={'space-y-2 order-2 md:order-1'}>
                     <Label className="flex items-center gap-2"><Pencil className="w-4 h-4"/> Order Notes</Label>
                     <Textarea 
                         placeholder={'Special instructions, delivery notes, etc.'} 
@@ -283,7 +311,7 @@ export default function OrderForm({mode = 'add', order}) {
                         onChange={(e) => setNotes(e.target.value)}
                     />
                 </div>
-                <div className={'bg-blue-50/50 p-6 rounded-2xl border border-blue-100'}>
+                <div className={'bg-blue-50/50 p-6 rounded-2xl border border-blue-100 order-1 md:order-2'}>
                     <div className={'border-b border-blue-100 space-y-3 pb-4'}>
                         <div className={'flex items-center justify-between'}>
                             <p className={'text-gray-500 font-medium'}>Subtotal</p>
@@ -299,8 +327,8 @@ export default function OrderForm({mode = 'add', order}) {
                         </div>
                     </div>
                     <div className={'flex items-center justify-between pt-4'}>
-                        <p className={'text-xl font-bold text-blue-900'}>Grand Total</p>
-                        <p className={'text-2xl text-blue-600 font-black'}>₹ {grandTotal.toLocaleString()}</p>
+                        <p className={'text-lg sm:text-xl font-bold text-blue-900'}>Grand Total</p>
+                        <p className={'text-xl sm:text-2xl text-blue-600 font-black'}>₹ {grandTotal.toLocaleString()}</p>
                     </div>
                 </div>
             </div>

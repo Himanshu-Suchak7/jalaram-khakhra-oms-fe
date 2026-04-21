@@ -9,6 +9,9 @@ import {useMutation} from "@tanstack/react-query";
 import {adminChangePassword} from "@/lib/user";
 import {useAuth} from "@/lib/auth-context";
 import {toast} from "sonner";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const changePasswordSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -20,6 +23,8 @@ const changePasswordSchema = z.object({
 
 export default function ChangePassword({open, onOpenChange, user}) {
     const {accessToken} = useAuth();
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const {
         register,
         handleSubmit,
@@ -63,22 +68,42 @@ export default function ChangePassword({open, onOpenChange, user}) {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="password">New Password</Label>
-                            <Input 
-                                {...register("password")}
-                                type="password" 
-                                placeholder="Enter new password"
-                                className={errors.password && "border-red-500"}
-                            />
+                            <div className="relative">
+                                <Input 
+                                    {...register("password")}
+                                    type={showPassword ? "text" : "password"} 
+                                    placeholder="Enter new password"
+                                    className={cn("pr-10", errors.password && "border-red-500")}
+                                />
+                                <button
+                                    type="button"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    onClick={() => setShowPassword((s) => !s)}
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                            </div>
                             {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input 
-                                {...register("confirmPassword")}
-                                type="password" 
-                                placeholder="Confirm new password"
-                                className={errors.confirmPassword && "border-red-500"}
-                            />
+                            <div className="relative">
+                                <Input 
+                                    {...register("confirmPassword")}
+                                    type={showConfirmPassword ? "text" : "password"} 
+                                    placeholder="Confirm new password"
+                                    className={cn("pr-10", errors.confirmPassword && "border-red-500")}
+                                />
+                                <button
+                                    type="button"
+                                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    onClick={() => setShowConfirmPassword((s) => !s)}
+                                >
+                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                            </div>
                             {errors.confirmPassword && <p className="text-xs text-red-500">{errors.confirmPassword.message}</p>}
                         </div>
                     </div>
