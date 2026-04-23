@@ -3,9 +3,11 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { IndianRupee, TrendingUp, Wallet, CalendarDays, BadgeCheck, BadgeIndianRupee, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 import PageHeader from "@/components/shared/PageHeader";
 import SummaryCard from "@/components/shared/SummaryCard";
+import StatusBadge from "@/components/shared/StatusBadge";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -201,9 +203,15 @@ export default function ProfitPage() {
                             ) : (
                                 (orderRows || []).slice(0, 50).map((row) => (
                                     <TableRow key={row.order_id} className="group hover:bg-muted/50 transition-colors border-border">
-                                        <TableCell className="px-6 py-5 font-bold text-blue-700">{row.order_number}</TableCell>
+                                        <TableCell className="px-6 py-5 font-bold text-blue-700">
+                                            <Link href={`/orders/${row.order_id}/invoice`} className="hover:underline underline-offset-4">
+                                                {row.order_number}
+                                            </Link>
+                                        </TableCell>
                                         <TableCell className="px-6 py-5 font-semibold text-foreground">{row.order_date}</TableCell>
-                                        <TableCell className="px-6 py-5 font-semibold text-foreground">{row.payment_status}</TableCell>
+                                        <TableCell className="px-6 py-5">
+                                            <StatusBadge status={row.payment_status} type="payment" />
+                                        </TableCell>
                                         <TableCell className="px-6 py-5 text-right font-semibold text-foreground">₹ {Number(row.revenue || 0).toLocaleString()}</TableCell>
                                         <TableCell className="px-6 py-5 text-right font-black text-emerald-700">₹ {Number(row.profit || 0).toLocaleString()}</TableCell>
                                     </TableRow>
@@ -216,4 +224,3 @@ export default function ProfitPage() {
         </div>
     );
 }
-
