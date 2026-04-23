@@ -164,10 +164,10 @@ export default function OrderForm({mode = 'add', order}) {
 
     return (
         <Card className="w-full mx-auto">
-            <CardHeader className={'border-b bg-gray-50/50'}>
+            <CardHeader className={'border-b bg-muted/50'}>
                 <CardTitle className={'text-lg'}>Customer & Date</CardTitle>
                 {isEdit && editMode !== "full" && (
-                    <div className="mt-3 rounded-xl border bg-white px-4 py-3 text-sm text-gray-700">
+                    <div className="mt-3 rounded-xl border bg-background px-4 py-3 text-sm text-foreground">
                         {editMode === "none" && "This order is cancelled and cannot be edited."}
                         {editMode === "notes_only" && "This order is fulfilled & paid. Only notes can be updated."}
                         {editMode === "limited" && "This order has restrictions. Items cannot be changed."}
@@ -210,14 +210,14 @@ export default function OrderForm({mode = 'add', order}) {
                                                 setSelectedCustomer(c);
                                                 setCustomerPopoverOpen(false);
                                             }}
-                                            className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-md cursor-pointer transition-colors"
+                                            className="flex items-center gap-3 p-2 hover:bg-muted rounded-md cursor-pointer transition-colors"
                                         >
                                             <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold">
                                                 {(c.name || "C")[0]}
                                             </div>
                                             <div>
                                                 <p className="font-medium">{c.name}</p>
-                                                <p className="text-xs text-gray-500">{c.phone_number} {c.city ? `| ${c.city}` : ''}</p>
+                                                <p className="text-xs text-muted-foreground">{c.phone_number} {c.city ? `| ${c.city}` : ''}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -252,7 +252,7 @@ export default function OrderForm({mode = 'add', order}) {
 
                 <div className="space-y-4">
                     {items.map((item, idx) => (
-                        <div key={idx} className="grid grid-cols-12 gap-4 items-end bg-gray-50/30 p-4 rounded-xl border border-dashed">
+                        <div key={idx} className="grid grid-cols-12 gap-4 items-end bg-muted/30 p-4 rounded-xl border border-dashed">
                             <div className="col-span-12 md:col-span-4 space-y-2">
                                 <Label>Select Product</Label>
                                 <Popover>
@@ -287,14 +287,14 @@ export default function OrderForm({mode = 'add', order}) {
                                                         };
                                                         setItems(newItems);
                                                     }}
-                                                    className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                                                    className="flex items-center gap-3 p-2 hover:bg-muted rounded-md cursor-pointer"
                                                 >
                                                         <img src={p.image || "/placeholder.png"} alt={p.product_name || "product"} className="w-10 h-10 object-cover rounded border" />
                                                     <div className="flex-1">
                                                         <p className="font-medium">{p.product_name}</p>
                                                         <div className="flex items-center justify-between">
                                                             <p className="text-xs text-blue-600 font-bold">₹ {p.stock_kg > 0 ? "In Stock" : "Out of Stock"}</p>
-                                                            <p className="text-xs font-medium text-gray-500">Avail: {p.stock_kg} kg</p>
+                                                            <p className="text-xs font-medium text-muted-foreground">Avail: {p.stock_kg} kg</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -345,7 +345,7 @@ export default function OrderForm({mode = 'add', order}) {
 
                             <div className="col-span-12 md:col-span-3 flex items-center justify-between gap-2">
                                 <div className="flex flex-col">
-                                    <Label className="text-xs text-gray-500">Line Total</Label>
+                                    <Label className="text-xs text-muted-foreground">Line Total</Label>
                                     <span className="text-lg font-bold">₹ {(Number(item.quantity || 0) * Number(item.price || 0)).toLocaleString()}</span>
                                 </div>
                                 {items.length > 1 && (
@@ -372,15 +372,15 @@ export default function OrderForm({mode = 'add', order}) {
                 <div className={'bg-blue-50/50 p-6 rounded-2xl border border-blue-100 order-1 md:order-2'}>
                     <div className={'border-b border-blue-100 space-y-3 pb-4'}>
                         <div className={'flex items-center justify-between'}>
-                            <p className={'text-gray-500 font-medium'}>Subtotal</p>
+                            <p className={'text-muted-foreground font-medium'}>Subtotal</p>
                             <p className={'font-bold'}>₹ {subtotal.toLocaleString()}</p>
                         </div>
                         <div className={'flex items-center justify-between'}>
-                            <p className={'text-gray-500 font-medium'}>Tax ({rates.tax_rate}%)</p>
+                            <p className={'text-muted-foreground font-medium'}>Tax ({rates.tax_rate}%)</p>
                             <p className={'font-medium'}>₹ {tax.toLocaleString()}</p>
                         </div>
                         <div className={'flex items-center justify-between'}>
-                            <p className={'text-gray-500 font-medium'}>Shipping ({rates.shipping_rate}%)</p>
+                            <p className={'text-muted-foreground font-medium'}>Shipping ({rates.shipping_rate}%)</p>
                             <p className={'font-medium'}>₹ {shipping.toLocaleString()}</p>
                         </div>
                     </div>
@@ -391,7 +391,7 @@ export default function OrderForm({mode = 'add', order}) {
                 </div>
             </div>
 
-            <CardFooter className={'gap-4 border-t bg-gray-50/30 py-6 justify-end'}>
+            <CardFooter className={'gap-4 border-t bg-muted/30 py-6 justify-end'}>
                 <Link href={'/orders'}>
                     <Button variant={'outline'} className={'px-8'}>Cancel</Button>
                 </Link>

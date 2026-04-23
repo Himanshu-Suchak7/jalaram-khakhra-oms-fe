@@ -52,7 +52,7 @@ export default function ProductImageUpload({
                     "w-full h-48 rounded-xl border-2 border-dashed cursor-pointer",
                     "flex flex-col items-center justify-center text-center",
                     "transition-all duration-200",
-                    isDragActive ? "border-blue-500 bg-blue-50/50" : "border-gray-200 hover:border-blue-400 hover:bg-gray-50/50"
+                    isDragActive ? "border-blue-500 bg-blue-50/50" : "border-border hover:border-blue-400 hover:bg-muted/50"
                 )}
             >
                 <input {...getInputProps()} />
@@ -70,11 +70,11 @@ export default function ProductImageUpload({
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center text-gray-400 gap-2">
-                        <div className="bg-gray-100 p-3 rounded-full">
+                        <div className="bg-muted p-3 rounded-full">
                             <ImageIcon className="w-6 h-6 text-gray-400"/>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-600">Click to upload or drag and drop</span>
+                            <span className="text-sm font-medium text-muted-foreground">Click to upload or drag and drop</span>
                             <span className="text-xs text-gray-400">PNG, JPG or WEBP (max. 5MB)</span>
                         </div>
                     </div>

@@ -1,14 +1,16 @@
 "use client";
 import {SidebarProvider, SidebarInset, SidebarTrigger} from "@/components/ui/sidebar";
 import {AppSidebar} from "@/components/app-sidebar";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function DashboardLayout({children}) {
     return (
         <SidebarProvider>
             <AppSidebar/>
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
                     <SidebarTrigger/>
+                    <ModeToggle/>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4">
                     {children}

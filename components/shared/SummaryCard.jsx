@@ -19,11 +19,11 @@ export default function SummaryCard({ title, value, icon: Icon, iconColor, isLoa
     return (
         <Card className="border-gray-100/60 shadow-sm hover:shadow-md transition-shadow group">
             <CardHeader className={'flex flex-row items-center justify-between pb-2'}>
-                <CardTitle className={'text-lg font-bold text-gray-600 group-hover:text-blue-600 transition-colors'}>{title}</CardTitle>
+                <CardTitle className={'text-lg font-bold text-muted-foreground group-hover:text-blue-600 transition-colors'}>{title}</CardTitle>
                 <Icon className={`${iconColor} w-6 h-6 group-hover:scale-110 transition-transform`}/>
             </CardHeader>
             <CardContent>
-                <p className={'text-3xl font-bold text-gray-900'}>{value}</p>
+                <p className={'text-3xl font-bold text-foreground'}>{value}</p>
             </CardContent>
         </Card>
     );

@@ -111,7 +111,7 @@ export default function Products() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {Array.from({ length: 6 }).map((_, idx) => (
-                            <Card key={idx} className="overflow-hidden border-gray-100 rounded-2xl shadow-sm bg-white">
+                            <Card key={idx} className="overflow-hidden border-border rounded-2xl shadow-sm bg-background">
                                 <Skeleton className="h-60 w-full" />
                                 <div className="p-6 space-y-3">
                                     <Skeleton className="h-7 w-3/4" />
@@ -126,20 +126,20 @@ export default function Products() {
                     </div>
                 </>
             ) : products.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-20 bg-gray-50 border-2 border-dashed border-gray-100 rounded-3xl gap-6">
-                    <div className="bg-white p-8 rounded-full shadow-sm">
+                <div className="flex flex-col items-center justify-center p-20 bg-muted/50 border-2 border-dashed border-border rounded-3xl gap-6">
+                    <div className="bg-background p-8 rounded-full shadow-sm">
                         <PackageOpen className="w-20 h-20 text-blue-400"/>
                     </div>
                     <div className="text-center space-y-2">
-                        <h2 className="text-3xl font-bold text-gray-800">Your shelf is empty!</h2>
-                        <p className="text-gray-500 text-lg max-w-sm font-medium">Add your first product to start taking orders.</p>
+                        <h2 className="text-3xl font-bold text-foreground">Your shelf is empty!</h2>
+                        <p className="text-muted-foreground text-lg max-w-sm font-medium">Add your first product to start taking orders.</p>
                     </div>
                     {isAdmin ? (
                         <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-7 rounded-2xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all">
                             <Plus className="w-6 h-6 mr-2" /> Add My First Product
                         </Button>
                     ) : (
-                        <div className="text-gray-500 font-bold">Ask an admin to add products.</div>
+                        <div className="text-muted-foreground font-bold">Ask an admin to add products.</div>
                     )}
                 </div>
             ) : (
@@ -148,7 +148,7 @@ export default function Products() {
                         <div className={'w-full relative'}>
                             <Search className={'absolute left-4 top-[50%] -translate-y-1/2 h-5 w-5 text-muted-foreground'}/>
                             <Input
-                                className={'pl-12 h-14 rounded-xl text-lg border-gray-100 focus:border-blue-400 shadow-sm transition-all font-medium'}
+                                className={'pl-12 h-14 rounded-xl text-lg border-border focus:border-blue-400 shadow-sm transition-all font-medium'}
                                 type={'text'}
                                 placeholder={'Search in your catalog...'}
                                 value={searchQuery}
@@ -159,14 +159,14 @@ export default function Products() {
 
                     <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'}>
                         {filteredProducts.length === 0 ? (
-                            <div className="col-span-full py-20 text-center text-gray-500 font-bold">No products match your search.</div>
+                            <div className="col-span-full py-20 text-center text-muted-foreground font-bold">No products match your search.</div>
                         ) : filteredProducts.map((product) => (
-                            <Card key={product.id} className={'group hover:shadow-2xl transition-all duration-300 border-gray-100/60 rounded-2xl flex flex-col overflow-hidden bg-white'}>
-                                <div className={'relative h-60 w-full pt-4 bg-gray-50/30'}>
+                            <Card key={product.id} className={'group hover:shadow-2xl transition-all duration-300 border-gray-100/60 rounded-2xl flex flex-col overflow-hidden bg-background'}>
+                                <div className={'relative h-60 w-full pt-4 bg-muted/30'}>
                                     <Image src={renderProductImage(product)} alt={product.name} fill className={'object-contain group-hover:scale-110 transition-transform duration-500 p-4'} />
                                 </div>
                                 <CardContent className="pt-6 flex-grow px-6">
-                                    <h3 className={'text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors'}>{product.name}</h3>
+                                    <h3 className={'text-2xl font-bold text-foreground group-hover:text-blue-600 transition-colors'}>{product.name}</h3>
                                     <p className="text-blue-600 font-bold text-xl mt-2 tracking-tight">₹ {product.price}</p>
                                 </CardContent>
                                 <CardFooter className="pt-2 pb-6 flex items-center gap-3 px-6">

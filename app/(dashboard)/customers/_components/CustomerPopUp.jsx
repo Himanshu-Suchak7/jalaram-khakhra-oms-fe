@@ -91,7 +91,7 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
                                 {...register("name")}
                                 type={'text'}
                                 placeholder={'e.g. Dharmesh Suchak'}
-                                className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.name && "border-red-500")}
+                                className={cn("h-12 rounded-xl border-border focus:border-blue-400 transition-all", errors.name && "border-red-500")}
                             />
                             {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>}
                         </div>
@@ -101,7 +101,7 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
                                 {...register("phone_number")}
                                 type={'text'}
                                 placeholder={'e.g. 9825083947'}
-                                className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.phone_number && "border-red-500")}
+                                className={cn("h-12 rounded-xl border-border focus:border-blue-400 transition-all", errors.phone_number && "border-red-500")}
                             />
                             {errors.phone_number && <p className="text-xs text-red-500 font-medium">{errors.phone_number.message}</p>}
                         </div>
@@ -111,7 +111,7 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
                                 {...register("address")}
                                 type={'text'}
                                 placeholder={'e.g. 123 Main St'}
-                                className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.address && "border-red-500")}
+                                className={cn("h-12 rounded-xl border-border focus:border-blue-400 transition-all", errors.address && "border-red-500")}
                             />
                             {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
                         </div>
@@ -121,7 +121,7 @@ export default function CustomerPopUp({open, onOpenChange, customer = null}) {
                                 {...register("city")}
                                 type={'text'}
                                 placeholder={'e.g. Rajkot'}
-                                className={cn("h-12 rounded-xl border-gray-100 focus:border-blue-400 transition-all", errors.city && "border-red-500")}
+                                className={cn("h-12 rounded-xl border-border focus:border-blue-400 transition-all", errors.city && "border-red-500")}
                             />
                             {errors.city && <p className="text-xs text-red-500 font-medium">{errors.city.message}</p>}
                         </div>

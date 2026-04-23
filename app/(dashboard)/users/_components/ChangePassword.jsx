@@ -62,7 +62,7 @@ export default function ChangePassword({open, onOpenChange, user}) {
             <DialogContent className="sm:max-w-[425px] rounded-2xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">Change Password</DialogTitle>
-                    {user && <p className="text-sm text-gray-500">Updating password for <b>{user.name}</b></p>}
+                    {user && <p className="text-sm text-muted-foreground">Updating password for <b>{user.name}</b></p>}
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
                     <div className="space-y-4">

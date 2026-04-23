@@ -94,13 +94,13 @@ export default function Inventory() {
                 ))}
             </div>
 
-            <Card className="overflow-hidden rounded-2xl border-gray-100/60 shadow-sm p-0 bg-white">
+            <Card className="overflow-hidden rounded-2xl border-gray-100/60 shadow-sm p-0 bg-background">
                 <div className="p-6">
                     <div className="relative w-full sm:flex-1 sm:max-w-sm">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"/>
                         <Input
                             placeholder="Search products..."
-                            className="pl-12 h-12 rounded-xl border-gray-100 focus:border-blue-400 shadow-sm text-lg transition-all"
+                            className="pl-12 h-12 rounded-xl border-border focus:border-blue-400 shadow-sm text-lg transition-all"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -108,11 +108,11 @@ export default function Inventory() {
                 </div>
 
                 <Table>
-                    <TableHeader className="bg-gray-50/50 border-t">
-                        <TableRow className="hover:bg-transparent border-gray-100">
+                    <TableHeader className="bg-muted/50 border-t">
+                        <TableRow className="hover:bg-transparent border-border">
                             {userTableHeader.map((header, index) => (
                                 <TableCell key={index} className={cn(
-                                    'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider',
+                                    'px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider',
                                     header === 'ACTIONS' && 'text-right'
                                 )}>
                                     {header}
@@ -143,16 +143,16 @@ export default function Inventory() {
                             </TableRow>
                         ) : (
                             items.map((item, index) => (
-                                <TableRow key={index} className="group hover:bg-gray-50/50 border-gray-100 transition-colors">
+                                <TableRow key={index} className="group hover:bg-muted/50 border-border transition-colors">
                                     <TableCell className="px-6 py-5">
                                         <div className="flex items-center gap-4">
                                             <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-gray-50 shadow-sm">
                                                 <Image src={item.image} alt={item.product_name} fill className="object-cover" />
                                             </div>
-                                            <span className="font-bold text-gray-900 text-lg">{item.product_name}</span>
+                                            <span className="font-bold text-foreground text-lg">{item.product_name}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="px-6 py-5 font-bold text-gray-700 text-lg">
+                                    <TableCell className="px-6 py-5 font-bold text-foreground text-lg">
                                         {item.stock_kg} <span className="text-xs text-gray-400 font-medium">KG</span>
                                     </TableCell>
                                     <TableCell className="px-6 py-5">
@@ -166,7 +166,7 @@ export default function Inventory() {
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-3">
-                                                <span className="font-bold text-gray-700 text-lg">{item.min_stock_kg} <span className="text-xs text-gray-400 font-medium">KG</span></span>
+                                                <span className="font-bold text-foreground text-lg">{item.min_stock_kg} <span className="text-xs text-gray-400 font-medium">KG</span></span>
                                                 <Button size='icon' variant='ghost' className='h-8 w-8 text-gray-400 hover:text-blue-600'
                                                         onClick={() => { setEditingMinStockId(item.product_id); minStockForm.setValue('min_stock_kg', item.min_stock_kg); }}>
                                                     <Pencil className="w-4 h-4" />
@@ -180,7 +180,7 @@ export default function Inventory() {
                                     <TableCell className="px-6 py-5">
                                         <Popover>
                                             <PopoverTrigger asChild>
-                                                <Button className="bg-blue-50 text-blue-600 hover:bg-blue-100 h-10 px-4 rounded-xl font-bold shadow-none border-none">
+                                                <Button className="bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 h-10 px-4 rounded-xl font-bold shadow-none border-none">
                                                     <Plus className="w-4 h-4 mr-1.5" /> Add Stock
                                                 </Button>
                                             </PopoverTrigger>

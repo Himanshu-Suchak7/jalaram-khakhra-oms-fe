@@ -47,7 +47,7 @@ export default function ProfitPage() {
 
     if (!isAdmin) {
         return (
-            <div className="p-10 text-center text-gray-700 font-bold">
+            <div className="p-10 text-center text-foreground font-bold">
                 Admin access required to view profit analytics.
             </div>
         );
@@ -68,8 +68,8 @@ export default function ProfitPage() {
         { title: "Realized Profit (Today)", value: `₹ ${Number(summary.realized.today_profit || 0).toLocaleString()}`, icon: CalendarDays, iconColor: "text-blue-600" },
         { title: "Accrued Profit (Month)", value: `₹ ${Number(summary.accrued.month_profit || 0).toLocaleString()}`, icon: BadgeIndianRupee, iconColor: "text-emerald-600" },
         { title: "Realized Profit (Month)", value: `₹ ${Number(summary.realized.month_profit || 0).toLocaleString()}`, icon: BadgeCheck, iconColor: "text-blue-600" },
-        { title: "Fulfilled Orders (Month)", value: Number(summary.fulfilled_orders_month || 0).toLocaleString(), icon: IndianRupee, iconColor: "text-gray-700" },
-        { title: "Paid+Fulfilled (Month)", value: Number(summary.realized_orders_month || 0).toLocaleString(), icon: IndianRupee, iconColor: "text-gray-700" },
+        { title: "Fulfilled Orders (Month)", value: Number(summary.fulfilled_orders_month || 0).toLocaleString(), icon: IndianRupee, iconColor: "text-foreground" },
+        { title: "Paid+Fulfilled (Month)", value: Number(summary.realized_orders_month || 0).toLocaleString(), icon: IndianRupee, iconColor: "text-foreground" },
     ] : [];
 
     return (
@@ -105,52 +105,52 @@ export default function ProfitPage() {
             )}
 
             <div className={'grid grid-cols-1 lg:grid-cols-2 gap-8'}>
-                <Card className="p-6 rounded-2xl border-gray-100 shadow-sm">
-                    <h3 className="text-xl font-bold text-gray-900">Top Product (by Profit)</h3>
+                <Card className="p-6 rounded-2xl border-border shadow-sm">
+                    <h3 className="text-xl font-bold text-foreground">Top Product (by Profit)</h3>
                     {loading ? (
                         <Skeleton className="h-10 w-2/3 mt-4 rounded-xl" />
                     ) : topProduct ? (
                         <div className="mt-4 space-y-1">
                             <div className="text-2xl font-black text-blue-700">{topProduct.product_name}</div>
-                            <div className="text-gray-600 font-semibold">Profit: ₹ {Number(topProduct.profit || 0).toLocaleString()}</div>
+                            <div className="text-muted-foreground font-semibold">Profit: ₹ {Number(topProduct.profit || 0).toLocaleString()}</div>
                         </div>
                     ) : (
-                        <div className="mt-4 text-gray-500 font-semibold">No data yet.</div>
+                        <div className="mt-4 text-muted-foreground font-semibold">No data yet.</div>
                     )}
                 </Card>
 
-                <Card className="p-6 rounded-2xl border-gray-100 shadow-sm">
-                    <h3 className="text-xl font-bold text-gray-900">Best Order (by Profit)</h3>
+                <Card className="p-6 rounded-2xl border-border shadow-sm">
+                    <h3 className="text-xl font-bold text-foreground">Best Order (by Profit)</h3>
                     {loading ? (
                         <Skeleton className="h-10 w-2/3 mt-4 rounded-xl" />
                     ) : bestOrder ? (
                         <div className="mt-4 space-y-1">
                             <div className="text-2xl font-black text-blue-700">{bestOrder.order_number}</div>
-                            <div className="text-gray-600 font-semibold">Profit: ₹ {Number(bestOrder.profit || 0).toLocaleString()}</div>
+                            <div className="text-muted-foreground font-semibold">Profit: ₹ {Number(bestOrder.profit || 0).toLocaleString()}</div>
                         </div>
                     ) : (
-                        <div className="mt-4 text-gray-500 font-semibold">No data yet.</div>
+                        <div className="mt-4 text-muted-foreground font-semibold">No data yet.</div>
                     )}
                 </Card>
             </div>
 
             <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Product Profit</h2>
-                <Card className={'p-0 overflow-hidden border-gray-100 rounded-2xl shadow-sm'}>
+                <h2 className="text-2xl font-bold text-foreground">Product Profit</h2>
+                <Card className={'p-0 overflow-hidden border-border rounded-2xl shadow-sm'}>
                     <Table>
-                        <TableHeader className="bg-gray-50/50">
-                            <TableRow className="hover:bg-transparent border-gray-100">
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider">PRODUCT</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">QTY (KG)</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">REVENUE</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">PROFIT</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">MARGIN %</TableHead>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow className="hover:bg-transparent border-border">
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider">PRODUCT</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">QTY (KG)</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">REVENUE</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">PROFIT</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">MARGIN %</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
                                 Array.from({ length: 6 }).map((_, idx) => (
-                                    <TableRow key={idx} className="border-gray-100">
+                                    <TableRow key={idx} className="border-border">
                                         <TableCell className="px-6 py-5"><Skeleton className="h-5 w-40 rounded" /></TableCell>
                                         <TableCell className="px-6 py-5 text-right"><Skeleton className="h-5 w-16 ml-auto rounded" /></TableCell>
                                         <TableCell className="px-6 py-5 text-right"><Skeleton className="h-5 w-20 ml-auto rounded" /></TableCell>
@@ -160,12 +160,12 @@ export default function ProfitPage() {
                                 ))
                             ) : (
                                 (productRows || []).slice(0, 50).map((row) => (
-                                    <TableRow key={row.product_id} className="group hover:bg-gray-50 transition-colors border-gray-100">
-                                        <TableCell className="px-6 py-5 font-bold text-gray-900">{row.product_name}</TableCell>
-                                        <TableCell className="px-6 py-5 text-right font-semibold text-gray-700">{Number(row.quantity_sold_kg || 0).toLocaleString()}</TableCell>
-                                        <TableCell className="px-6 py-5 text-right font-semibold text-gray-700">₹ {Number(row.revenue || 0).toLocaleString()}</TableCell>
+                                    <TableRow key={row.product_id} className="group hover:bg-muted/50 transition-colors border-border">
+                                        <TableCell className="px-6 py-5 font-bold text-foreground">{row.product_name}</TableCell>
+                                        <TableCell className="px-6 py-5 text-right font-semibold text-foreground">{Number(row.quantity_sold_kg || 0).toLocaleString()}</TableCell>
+                                        <TableCell className="px-6 py-5 text-right font-semibold text-foreground">₹ {Number(row.revenue || 0).toLocaleString()}</TableCell>
                                         <TableCell className="px-6 py-5 text-right font-black text-emerald-700">₹ {Number(row.profit || 0).toLocaleString()}</TableCell>
-                                        <TableCell className="px-6 py-5 text-right font-semibold text-gray-700">{row.margin_percent == null ? "-" : `${row.margin_percent}%`}</TableCell>
+                                        <TableCell className="px-6 py-5 text-right font-semibold text-foreground">{row.margin_percent == null ? "-" : `${row.margin_percent}%`}</TableCell>
                                     </TableRow>
                                 ))
                             )}
@@ -175,22 +175,22 @@ export default function ProfitPage() {
             </div>
 
             <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Order Profit</h2>
-                <Card className={'p-0 overflow-hidden border-gray-100 rounded-2xl shadow-sm'}>
+                <h2 className="text-2xl font-bold text-foreground">Order Profit</h2>
+                <Card className={'p-0 overflow-hidden border-border rounded-2xl shadow-sm'}>
                     <Table>
-                        <TableHeader className="bg-gray-50/50">
-                            <TableRow className="hover:bg-transparent border-gray-100">
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider">ORDER</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider">DATE</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider">PAYMENT</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">REVENUE</TableHead>
-                                <TableHead className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">PROFIT</TableHead>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow className="hover:bg-transparent border-border">
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider">ORDER</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider">DATE</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider">PAYMENT</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">REVENUE</TableHead>
+                                <TableHead className="px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">PROFIT</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
                                 Array.from({ length: 6 }).map((_, idx) => (
-                                    <TableRow key={idx} className="border-gray-100">
+                                    <TableRow key={idx} className="border-border">
                                         <TableCell className="px-6 py-5"><Skeleton className="h-5 w-24 rounded" /></TableCell>
                                         <TableCell className="px-6 py-5"><Skeleton className="h-5 w-24 rounded" /></TableCell>
                                         <TableCell className="px-6 py-5"><Skeleton className="h-5 w-20 rounded" /></TableCell>
@@ -200,11 +200,11 @@ export default function ProfitPage() {
                                 ))
                             ) : (
                                 (orderRows || []).slice(0, 50).map((row) => (
-                                    <TableRow key={row.order_id} className="group hover:bg-gray-50 transition-colors border-gray-100">
+                                    <TableRow key={row.order_id} className="group hover:bg-muted/50 transition-colors border-border">
                                         <TableCell className="px-6 py-5 font-bold text-blue-700">{row.order_number}</TableCell>
-                                        <TableCell className="px-6 py-5 font-semibold text-gray-700">{row.order_date}</TableCell>
-                                        <TableCell className="px-6 py-5 font-semibold text-gray-700">{row.payment_status}</TableCell>
-                                        <TableCell className="px-6 py-5 text-right font-semibold text-gray-700">₹ {Number(row.revenue || 0).toLocaleString()}</TableCell>
+                                        <TableCell className="px-6 py-5 font-semibold text-foreground">{row.order_date}</TableCell>
+                                        <TableCell className="px-6 py-5 font-semibold text-foreground">{row.payment_status}</TableCell>
+                                        <TableCell className="px-6 py-5 text-right font-semibold text-foreground">₹ {Number(row.revenue || 0).toLocaleString()}</TableCell>
                                         <TableCell className="px-6 py-5 text-right font-black text-emerald-700">₹ {Number(row.profit || 0).toLocaleString()}</TableCell>
                                     </TableRow>
                                 ))

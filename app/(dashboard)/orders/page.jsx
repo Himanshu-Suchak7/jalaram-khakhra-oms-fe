@@ -53,12 +53,12 @@ export default function Orders() {
                 onButtonClick={() => window.location.href = '/orders/add-order'}
             />
 
-            <Card className={'p-0 overflow-hidden border-gray-100 rounded-2xl shadow-sm'}>
+            <Card className={'p-0 overflow-hidden border-border rounded-2xl shadow-sm'}>
                 <div className="p-6">
                     <div className={'w-full sm:max-w-md relative'}>
                         <Search className={'absolute left-4 top-[50%] -translate-y-1/2 h-5 w-5 text-muted-foreground'}/>
                         <Input 
-                            className={'pl-12 h-12 rounded-xl border-gray-100 focus:border-blue-400 text-lg shadow-sm transition-all'} 
+                            className={'pl-12 h-12 rounded-xl border-border focus:border-blue-400 text-lg shadow-sm transition-all'} 
                             type={'text'}
                             value={search}
                             onChange={handleSearch}
@@ -68,11 +68,11 @@ export default function Orders() {
                 </div>
                 
                 <Table>
-                    <TableHeader className={'bg-gray-50/50'}>
-                        <TableRow className="hover:bg-transparent border-gray-100">
+                    <TableHeader className={'bg-muted/50'}>
+                        <TableRow className="hover:bg-transparent border-border">
                             {ordersTableHeader.map((header, index) => (
                                 <TableCell className={cn(
-                                    'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider',
+                                    'px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider',
                                     header === 'ACTIONS' && 'text-right'
                                 )} key={index}>{header}</TableCell>
                             ))}
@@ -81,7 +81,7 @@ export default function Orders() {
                     <TableBody>
                         {loading ? (
                             Array.from({ length: 5 }).map((_, idx) => (
-                                <TableRow key={`skeleton-${idx}`} className="border-gray-100">
+                                <TableRow key={`skeleton-${idx}`} className="border-border">
                                     <TableCell className={'px-6 py-5'}><Skeleton className="h-5 w-20" /></TableCell>
                                     <TableCell className={'px-6 py-5'}><Skeleton className="h-5 w-48" /></TableCell>
                                     <TableCell className={'px-6 py-5'}><Skeleton className="h-5 w-24" /></TableCell>
@@ -92,18 +92,18 @@ export default function Orders() {
                             ))
                         ) : orders.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-20 text-gray-500 font-medium">No orders found.</TableCell>
+                                <TableCell colSpan={6} className="text-center py-20 text-muted-foreground font-medium">No orders found.</TableCell>
                             </TableRow>
                         ) : (
                             orders.map((row) => (
-                                <TableRow key={row.id} className="group hover:bg-gray-50 transition-colors border-gray-100">
+                                <TableRow key={row.id} className="group hover:bg-muted/50 transition-colors border-border">
                                     <TableCell className={'px-6 py-5 font-bold text-blue-600'}>
                                         <Link href={`/orders/${row.id}/invoice`}>
                                             {row.order_number}
                                         </Link>
                                     </TableCell>
-                                    <TableCell className={'px-6 py-5 font-bold text-gray-900'}>{row.customer_name}</TableCell>
-                                    <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>₹ {row.total_amount.toLocaleString()}</TableCell>
+                                    <TableCell className={'px-6 py-5 font-bold text-foreground'}>{row.customer_name}</TableCell>
+                                    <TableCell className={'px-6 py-5 font-bold text-foreground text-lg'}>₹ {row.total_amount.toLocaleString()}</TableCell>
                                     <TableCell className={'px-6 py-5'}>
                                         <StatusBadge status={row.order_status} type="order" />
                                     </TableCell>
@@ -117,9 +117,9 @@ export default function Orders() {
                             ))
                         )}
                     </TableBody>
-                    <TableFooter className="bg-gray-50/50">
+                    <TableFooter className="bg-muted/50">
                         <TableRow>
-                            <TableCell colSpan={6} className={'px-6 py-5 text-center text-gray-500 font-bold'}>
+                            <TableCell colSpan={6} className={'px-6 py-5 text-center text-muted-foreground font-bold'}>
                                 Showing {orders.length} orders
                             </TableCell>
                         </TableRow>

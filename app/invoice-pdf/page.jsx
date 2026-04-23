@@ -65,7 +65,7 @@ export default async function InvoicePdfPage({ searchParams }) {
     }
 
     return (
-        <div className="min-h-screen bg-white p-8">
+        <div className="min-h-screen bg-background p-8">
             <InvoiceDocument data={payload.invoice} />
         </div>
     );

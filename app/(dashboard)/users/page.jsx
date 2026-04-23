@@ -106,17 +106,17 @@ export default function Users() {
                 buttonIcon={Plus}
                 onButtonClick={() => setOpenAddUserModal(true)}
             >
-                <div className="hidden lg:block bg-blue-50 text-blue-700 font-bold px-5 py-2.5 rounded-xl text-sm border border-blue-100">
+                <div className="hidden lg:block bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 font-bold px-5 py-2.5 rounded-xl text-sm border border-blue-100 dark:border-blue-800">
                     Administrator Controls
                 </div>
             </PageHeader>
 
-            <Card className={'overflow-hidden border-gray-100/60 shadow-sm rounded-2xl bg-white'}>
+            <Card className={'overflow-hidden border-gray-100/60 shadow-sm rounded-2xl bg-background'}>
                 <div className="p-6">
                     <div className={'w-full sm:max-w-md relative'}>
                         <Search className={'absolute left-4 top-[50%] -translate-y-1/2 h-5 w-5 text-muted-foreground'}/>
                         <Input 
-                            className={'pl-12 h-14 rounded-xl text-lg border-gray-100 focus:border-blue-400 shadow-sm font-medium transition-all'} 
+                            className={'pl-12 h-14 rounded-xl text-lg border-border focus:border-blue-400 shadow-sm font-medium transition-all'} 
                             placeholder={'Search team members...'}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -124,13 +124,13 @@ export default function Users() {
                     </div>
                 </div>
 
-                <div className="border-t border-gray-100">
+                <div className="border-t border-border">
                     <Table>
-                        <TableHeader className={'bg-gray-50/50'}>
-                            <TableRow className="hover:bg-transparent border-gray-100">
+                        <TableHeader className={'bg-muted/50'}>
+                            <TableRow className="hover:bg-transparent border-border">
                                 {userTableHeader.map((header) => (
                                     <TableHead className={cn(
-                                        'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider',
+                                        'px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider',
                                         header === 'ACTIONS' && 'text-right'
                                     )} key={header}>
                                         {header}
@@ -141,7 +141,7 @@ export default function Users() {
                         <TableBody>
                             {loading ? (
                                 Array.from({ length: 5 }).map((_, idx) => (
-                                    <TableRow key={idx} className="border-gray-100">
+                                    <TableRow key={idx} className="border-border">
                                         <TableCell className="px-6 py-5">
                                             <div className="flex items-center gap-4">
                                                 <Skeleton className="h-14 w-14 rounded-full" />
@@ -165,10 +165,10 @@ export default function Users() {
                                 </TableRow>
                             ) : (
                                 filteredUsers.map((user) => (
-                                    <TableRow key={user.id} className="group hover:bg-gray-50/50 border-gray-100 transition-colors">
+                                    <TableRow key={user.id} className="group hover:bg-muted/50 border-border transition-colors">
                                         <TableCell className={'px-6 py-5'}>
                                             <div className="flex items-center gap-4">
-                                                <div className={'relative w-14 h-14 overflow-hidden rounded-full ring-4 ring-gray-50 shadow-sm border border-gray-100 bg-white'}>
+                                                <div className={'relative w-14 h-14 overflow-hidden rounded-full ring-4 ring-muted/50 shadow-sm border border-border bg-background'}>
                                                     <Image 
                                                         src={user.profile_picture || "/jalaram-bapa-image.png"} 
                                                         fill 
@@ -177,15 +177,15 @@ export default function Users() {
                                                     />
                                                 </div>
                                                 <div className={'flex flex-col'}>
-                                                    <span className={'text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors'}>{user.name}</span>
-                                                    <span className={'text-sm text-gray-500 font-medium'}>{user.email || 'No email provided'}</span>
+                                                    <span className={'text-xl font-bold text-foreground group-hover:text-blue-600 transition-colors'}>{user.name}</span>
+                                                    <span className={'text-sm text-muted-foreground font-medium'}>{user.email || 'No email provided'}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>{user.phone_number}</TableCell>
+                                        <TableCell className={'px-6 py-5 font-bold text-foreground text-lg'}>{user.phone_number}</TableCell>
                                         <TableCell className={'px-6 py-5'}>
                                             <span className={cn('px-4 py-1.5 rounded-full text-xs font-bold tracking-wider inline-flex items-center',
-                                                user.role === 'admin' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-gray-100 text-gray-700 border border-gray-200',
+                                                user.role === 'admin' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-muted text-foreground border border-border',
                                             )}>
                                                 {user.role.toUpperCase()}
                                             </span>

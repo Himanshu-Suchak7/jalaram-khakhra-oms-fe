@@ -116,34 +116,34 @@ export default function Home() {
             </div>
 
             <div className={'grid grid-cols-1 lg:grid-cols-2 gap-8'}>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="bg-background p-6 rounded-2xl shadow-sm border border-border">
                     <OrderStatusChart data={orderStatusProps}/>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="bg-background p-6 rounded-2xl shadow-sm border border-border">
                     <RevenueGraph data={data.revenue_overview}/>
                 </div>
             </div>
 
             <div className={'space-y-6'}>
                 <div className={'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'}>
-                    <h2 className={'text-3xl font-bold text-gray-900'}>Recent Orders</h2>
+                    <h2 className={'text-3xl font-bold text-foreground'}>Recent Orders</h2>
                     <Button
                         variant="ghost"
                         asChild
-                        className={'bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 font-bold px-6 py-5 rounded-xl transition-all'}>
+                        className={'bg-blue-50 dark:bg-blue-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold px-6 py-5 rounded-xl transition-all'}>
                         <Link href={'/orders'} className={'flex items-center gap-2'}>
                             View Orders <MoveRight className="w-5 h-5"/>
                         </Link>
                     </Button>
                 </div>
                 
-                <Card className={'p-0 overflow-hidden border-gray-100 rounded-2xl shadow-sm'}>
+                <Card className={'p-0 overflow-hidden border-border rounded-2xl shadow-sm'}>
                     <Table>
-                        <TableHeader className="bg-gray-50/50">
-                            <TableRow className="hover:bg-transparent border-gray-100">
+                        <TableHeader className="bg-muted/50">
+                            <TableRow className="hover:bg-transparent border-border">
                                 {orderTableHeader.map((header, index) => (
                                     <TableHead className={cn(
-                                        'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider',
+                                        'px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider',
                                         header === 'TOTAL' && 'text-right'
                                     )} key={index}>{header}</TableHead>
                                 ))}
@@ -151,18 +151,18 @@ export default function Home() {
                         </TableHeader>
                         <TableBody>
                             {data.recent_orders.map((order, index) => (
-                                <TableRow key={index} className="group hover:bg-gray-50 transition-colors border-gray-100">
+                                <TableRow key={index} className="group hover:bg-muted/50 transition-colors border-border">
                                     <TableCell className={'px-6 py-5 font-bold text-blue-600'}>
                                         <Link href={`/orders/${order.id}/invoice`}>
                                             {order.order_id}
                                         </Link>
                                     </TableCell>
-                                    <TableCell className={'px-6 py-5 font-bold text-gray-900'}>{order.customer_name}</TableCell>
-                                    <TableCell className={'px-6 py-5 text-gray-500 font-medium'}>{order.date}</TableCell>
+                                    <TableCell className={'px-6 py-5 font-bold text-foreground'}>{order.customer_name}</TableCell>
+                                    <TableCell className={'px-6 py-5 text-muted-foreground font-medium'}>{order.date}</TableCell>
                                     <TableCell className={'px-6 py-5'}>
                                         <StatusBadge status={order.status} type="order" />
                                     </TableCell>
-                                    <TableCell className={'px-6 py-5 font-bold text-gray-900 text-lg text-right'}>{`₹ ${order.total.toLocaleString()}`}</TableCell>
+                                    <TableCell className={'px-6 py-5 font-bold text-foreground text-lg text-right'}>{`₹ ${order.total.toLocaleString()}`}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

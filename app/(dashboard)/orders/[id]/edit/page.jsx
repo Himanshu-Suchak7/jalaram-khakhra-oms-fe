@@ -36,7 +36,7 @@ export default function EditOrder({ params }) {
         <div className="space-y-6">
             <div className="space-y-2">
                 <h1 className="text-3xl font-bold">Edit Order</h1>
-                <p className="text-gray-500">Updating Order #{orderData.order?.order_number}</p>
+                <p className="text-muted-foreground">Updating Order #{orderData.order?.order_number}</p>
             </div>
             <OrderForm mode="edit" order={orderData} />
         </div>

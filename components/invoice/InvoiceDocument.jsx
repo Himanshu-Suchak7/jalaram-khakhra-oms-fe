@@ -15,28 +15,28 @@ export default function InvoiceDocument({ data }) {
                 <CardHeader className={'flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b'}>
                     <div>
                         <h2 className={'text-2xl font-bold mb-1'}>{data.business.name}</h2>
-                        <p className={'text-gray-500'}>{data.business.address}</p>
-                        <p className={'text-gray-500'}>{data.business.phone} | GSTIN: {data.business.gstin || 'N/A'}</p>
-                        <p className={'text-gray-500'}>UPI: {data.business.upi_id}</p>
+                        <p className={'text-muted-foreground'}>{data.business.address}</p>
+                        <p className={'text-muted-foreground'}>{data.business.phone} | GSTIN: {data.business.gstin || 'N/A'}</p>
+                        <p className={'text-muted-foreground'}>UPI: {data.business.upi_id}</p>
                     </div>
                     <div className="sm:text-right">
                         <h2 className={'text-2xl font-bold mb-1'}>INVOICE</h2>
-                        <p className={'text-gray-500'}>Invoice Number: {data.invoice_number}</p>
-                        <p className={'text-gray-500'}>Invoice Date: {data.invoice_date}</p>
+                        <p className={'text-muted-foreground'}>Invoice Number: {data.invoice_number}</p>
+                        <p className={'text-muted-foreground'}>Invoice Date: {data.invoice_date}</p>
                     </div>
                 </CardHeader>
                 <div className={'p-4 pt-6 sm:p-6 sm:pt-8 border-b'}>
                     <p className={'text-lg font-medium'}>Bill To</p>
-                    <div className={'bg-gray-100 p-4 border border-gray-200 rounded-lg mt-2'}>
+                    <div className={'bg-muted p-4 border border-border rounded-lg mt-2'}>
                         <p className={'text-lg font-medium'}>{data.bill_to.name}</p>
-                        <p className={'text-gray-600'}>{data.bill_to.phone}</p>
+                        <p className={'text-muted-foreground'}>{data.bill_to.phone}</p>
                         {(data.bill_to.address || data.bill_to.city) && (
-                            <p className={'text-gray-600'}>
+                            <p className={'text-muted-foreground'}>
                                 {data.bill_to.address}{data.bill_to.address && data.bill_to.city ? ', ' : ''}{data.bill_to.city}
                             </p>
                         )}
                     </div>
-                    <div className={'border border-gray-200 rounded-lg mt-8'}>
+                    <div className={'border border-border rounded-lg mt-8'}>
                         <Table>
                             <TableHeader>
                                 <TableRow className={'text-lg'}>
@@ -61,10 +61,10 @@ export default function InvoiceDocument({ data }) {
                     <div className={'flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between mt-6'}>
                         <div>
                             <div className={'flex flex-col items-center'}>
-                                <div className="bg-white p-2 border rounded-lg mb-2">
+                                <div className="bg-background p-2 border rounded-lg mb-2">
                                     <img src={data.business.upi_qr_image} width={120} height={120} alt={'qr code'}/>
                                 </div>
-                                <p className={'text-gray-500 font-medium'}>Scan to pay with any UPI App</p>
+                                <p className={'text-muted-foreground font-medium'}>Scan to pay with any UPI App</p>
                             </div>
                         </div>
                         <div className={'w-full sm:w-1/3'}>
@@ -90,7 +90,7 @@ export default function InvoiceDocument({ data }) {
                     </div>
                     <div className="mt-5">
                         <p className={'text-lg font-medium'}>Notes:</p>
-                        <p className={'text-gray-500'}>{data.notes}</p>
+                        <p className={'text-muted-foreground'}>{data.notes}</p>
                     </div> 
                 </div>
                 <CardFooter className={'justify-center items-center text-lg font-bold py-6'}>

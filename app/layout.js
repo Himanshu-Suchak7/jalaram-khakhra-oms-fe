@@ -3,6 +3,7 @@ import "./globals.css";
 import {AuthProvider} from "@/lib/auth-context";
 import {Toaster} from "@/components/ui/sonner";
 import QueryProvider from "@/components/QueryProvider";
+import {ThemeProvider} from "@/components/theme-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -31,16 +32,23 @@ export const metadata = {
 
 export default function RootLayout({children}) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        <AuthProvider>
-            <QueryProvider>
-                {children}
-            </QueryProvider>
-            <Toaster position={'top-right'} richColors/>
-        </AuthProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <AuthProvider>
+                <QueryProvider>
+                    {children}
+                </QueryProvider>
+                <Toaster position={'top-right'} richColors/>
+            </AuthProvider>
+        </ThemeProvider>
         </body>
         </html>
     );

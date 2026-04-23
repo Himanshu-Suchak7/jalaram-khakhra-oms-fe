@@ -21,23 +21,23 @@ export default function UserActionMenu({user, onChangePassword, onUpdateRole, on
                     <MoreVertical className="h-4 w-4"/>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg border-gray-100 p-2">
+            <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg border-border p-2">
                 <DropdownMenuItem onClick={() => onChangePassword(user)} className="rounded-lg py-2.5 cursor-pointer">
-                    <KeyRound className="mr-2 h-4 w-4 text-gray-500"/>
+                    <KeyRound className="mr-2 h-4 w-4 text-muted-foreground"/>
                     <span className="font-medium">Change Password</span>
                 </DropdownMenuItem>
                 
                 <DropdownMenuSub>
                     <DropdownMenuSubTrigger className="rounded-lg py-2.5 cursor-pointer">
-                        <RefreshCcw className="mr-2 h-4 w-4 text-gray-500"/>
+                        <RefreshCcw className="mr-2 h-4 w-4 text-muted-foreground"/>
                         <span className="font-medium">Update User Role</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
-                        <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-gray-100 min-w-[120px]">
+                        <DropdownMenuSubContent className="rounded-xl p-1.5 shadow-xl border-border min-w-[120px]">
                             <DropdownMenuItem
                                 onClick={() => onUpdateRole(user, "admin")}
                                 className={cn('rounded-lg py-2 cursor-pointer font-bold gap-2', 
-                                    user.role === 'admin' ? 'bg-blue-50 text-blue-700' : 'text-gray-600'
+                                    user.role === 'admin' ? 'bg-blue-50 text-blue-700' : 'text-muted-foreground'
                                 )}>
                                 <ShieldCheck className={cn('w-4 h-4', user.role === 'admin' ? 'text-blue-600' : 'text-gray-400')}/> 
                                 ADMIN
@@ -45,16 +45,16 @@ export default function UserActionMenu({user, onChangePassword, onUpdateRole, on
                             <DropdownMenuItem
                                 onClick={() => onUpdateRole(user, "user")}
                                 className={cn('rounded-lg py-2 cursor-pointer font-bold gap-2', 
-                                    user.role === 'user' ? 'bg-gray-50 text-gray-700' : 'text-gray-600'
+                                    user.role === 'user' ? 'bg-muted/50 text-foreground' : 'text-muted-foreground'
                                 )}>
-                                <User className={cn('w-4 h-4', user.role === 'user' ? 'text-gray-600' : 'text-gray-400')}/> 
+                                <User className={cn('w-4 h-4', user.role === 'user' ? 'text-muted-foreground' : 'text-gray-400')}/> 
                                 USER
                             </DropdownMenuItem>
                         </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
 
-                <DropdownMenuSeparator className="my-1.5 bg-gray-50" />
+                <DropdownMenuSeparator className="my-1.5 bg-muted/50" />
 
                 <DropdownMenuItem 
                     onClick={() => onDelete(user.id)}

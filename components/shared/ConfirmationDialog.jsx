@@ -29,12 +29,12 @@ export default function ConfirmationDialog({
                         <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10" />
                         <span>{title}</span>
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="text-xl text-gray-600 pt-3">
+                    <AlertDialogDescription className="text-xl text-muted-foreground pt-3">
                         {description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="gap-4 pt-8">
-                    <AlertDialogCancel className="rounded-2xl px-10 py-7 border-none bg-gray-50 text-xl font-bold hover:bg-gray-100 transition-all">
+                    <AlertDialogCancel className="rounded-2xl px-10 py-7 border-none bg-muted/50 text-xl font-bold hover:bg-muted transition-all">
                         {cancelText}
                     </AlertDialogCancel>
                     <AlertDialogAction

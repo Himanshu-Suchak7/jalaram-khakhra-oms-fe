@@ -90,7 +90,7 @@ export default function Customers() {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
                 <p className="text-red-500 font-bold text-xl">Connection Error</p>
-                <p className="text-gray-500 max-w-xs">We couldn't reach the customer database. Please check your connection.</p>
+                <p className="text-muted-foreground max-w-xs">We couldn't reach the customer database. Please check your connection.</p>
                 <Button onClick={() => refetch()} variant="outline" className="rounded-xl px-10 py-7 text-lg font-bold">Retry Load</Button>
             </div>
         )
@@ -106,26 +106,26 @@ export default function Customers() {
                 onButtonClick={handleAdd}
             />
 
-            <Card className="overflow-hidden border-gray-100/60 shadow-sm rounded-2xl bg-white">
+            <Card className="overflow-hidden border-gray-100/60 shadow-sm rounded-2xl bg-background">
                 <div className="p-6">
                     <div className={'w-full sm:max-w-md relative'}>
                         <Search className={'absolute left-4 top-[50%] -translate-y-1/2 h-5 w-5 text-muted-foreground'}/>
                         <Input
-                            className={'pl-12 h-14 rounded-xl text-lg border-gray-100 focus:border-blue-400 shadow-sm transition-all font-medium'}
-                            placeholder={'Search client directory...'}
+                            className={'pl-12 h-14 rounded-xl text-lg border-border focus:border-blue-400 shadow-sm transition-all font-medium'}
+                            placeholder={'Search customer directory...'}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                 </div>
 
-                <div className="border-t border-gray-100">
+                <div className="border-t border-border">
                     <Table>
-                        <TableHeader className={'bg-gray-50/50'}>
-                            <TableRow className="hover:bg-transparent border-gray-100">
+                        <TableHeader className={'bg-muted/50'}>
+                            <TableRow className="hover:bg-transparent border-border">
                                 {userTableHeader.map((header) => (
                                     <TableHead key={header} className={cn(
-                                        'px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-wider',
+                                        'px-6 py-5 text-xs font-bold text-muted-foreground uppercase tracking-wider',
                                         header === 'ACTIONS' && 'text-right'
                                     )}>{header}</TableHead>
                                 ))}
@@ -134,7 +134,7 @@ export default function Customers() {
                         <TableBody>
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, idx) => (
-                                    <TableRow key={idx} className="border-gray-100">
+                                    <TableRow key={idx} className="border-border">
                                         <TableCell className="px-6 py-5">
                                             <div className="flex items-center gap-4">
                                                 <Skeleton className="h-12 w-12 rounded-full" />
@@ -149,31 +149,31 @@ export default function Customers() {
                             ) : filteredCustomers.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-60 text-center text-gray-400 font-bold text-lg">
-                                        {searchQuery ? `No matches found for "${searchQuery}"` : "Client list is empty."}
+                                        {searchQuery ? `No matches found for "${searchQuery}"` : "Customer list is empty."}
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 filteredCustomers.map((customer) => (
-                                    <TableRow key={customer.id} className="group hover:bg-gray-50/50 border-gray-100 transition-colors">
+                                    <TableRow key={customer.id} className="group hover:bg-muted/50 border-border transition-colors">
                                         <TableCell className={'px-6 py-5'}>
                                             <div className={'flex items-center gap-4'}>
-                                                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-700 font-bold text-xl shadow-sm border border-blue-100">
+                                                <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/40 flex items-center justify-center text-blue-700 dark:text-blue-400 font-bold text-xl shadow-sm border border-blue-100 dark:border-blue-800">
                                                     {customer.name.charAt(0).toUpperCase()}
                                                 </div>
-                                                <span className={'font-bold text-gray-900 text-lg'}>{customer.name}</span>
+                                                <span className={'font-bold text-foreground text-md'}>{customer.name}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>
+                                        <TableCell className={'px-6 py-5 font-bold text-foreground text-md'}>
                                             {customer.phone_number || customer.phone || 'N/A'}
                                         </TableCell>
-                                        <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>
+                                        <TableCell className={'px-6 py-5 font-bold text-foreground text-md'}>
                                             {customer.customer_address || customer.address ? (
-                                                (customer.customer_address || customer.address).length > 20 
-                                                ? (customer.customer_address || customer.address).substring(0, 20) + "..."
+                                                (customer.customer_address || customer.address).length > 15 
+                                                ? (customer.customer_address || customer.address).substring(0, 15) + "..."
                                                 : (customer.customer_address || customer.address)
                                             ) : 'N/A'}
                                         </TableCell>
-                                        <TableCell className={'px-6 py-5 font-bold text-gray-700 text-lg'}>
+                                        <TableCell className={'px-6 py-5 font-bold text-foreground text-md'}>
                                             {customer.customer_city || customer.city || 'N/A'}
                                         </TableCell>
                                         <TableCell className={'px-6 py-5'}>
@@ -181,10 +181,10 @@ export default function Customers() {
                                         </TableCell>
                                         <TableCell className={'px-6 py-5'}>
                                             <div className="flex items-center justify-end gap-3">
-                                                <Button onClick={() => handleEdit(customer)} className={'bg-blue-50 text-blue-700 hover:bg-blue-100 border-none px-6 py-3 rounded-xl font-bold h-auto shadow-none transition-all'}>
-                                                    Update Customer Profile
+                                                <Button onClick={() => handleEdit(customer)} className={'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 border-none px-6 py-3 rounded-xl font-bold h-auto shadow-none transition-all'}>
+                                                    Update Customer
                                                 </Button>
-                                                <Button onClick={() => requestDelete(customer.id)} variant="ghost" className="p-3 h-auto rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                                                <Button onClick={() => requestDelete(customer.id)} variant="ghost" className="p-3 h-auto rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400 transition-all">
                                                     <Trash2 className="w-6 h-6" />
                                                 </Button>
                                             </div>

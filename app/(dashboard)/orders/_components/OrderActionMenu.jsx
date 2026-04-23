@@ -198,12 +198,12 @@ export default function OrderActionMenu({order, onMutation}) {
                         <AlertCircle className="w-8 h-8" />
                         Are you absolutely sure?
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="text-lg text-gray-600 pt-2">
+                    <AlertDialogDescription className="text-lg text-muted-foreground pt-2">
                         This action cannot be undone. This will permanently delete Order #{order.order_number} and all its associated data.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="gap-3 pt-6">
-                    <AlertDialogCancel className="rounded-xl px-6 py-5 bg-gray-50 border-none text-lg font-medium hover:bg-gray-100 transition-all">
+                    <AlertDialogCancel className="rounded-xl px-6 py-5 bg-muted/50 border-none text-lg font-medium hover:bg-muted transition-all">
                         Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
