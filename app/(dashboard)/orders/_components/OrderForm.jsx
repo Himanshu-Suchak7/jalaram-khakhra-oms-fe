@@ -33,7 +33,7 @@ export default function OrderForm({mode = 'add', order}) {
     const [date, setDate] = useState(new Date());
     const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
-    const [items, setItems] = useState([{product_id: "", name: "", quantity: "", price: "", image: "", stock: 0}]);
+    const [items, setItems] = useState([{product_id: "", name: "", quantity: "", price: "", image: "", stock: 0, has_cost_price: true}]);
     const [notes, setNotes] = useState("");
     const [loading, setLoading] = useState(false);
     const [rates, setRates] = useState({tax_rate: 18, shipping_rate: 15});
@@ -105,7 +105,7 @@ export default function OrderForm({mode = 'add', order}) {
 
     const addItem = () => {
         if (items.length >= 10) return toast.error("Maximum 10 items allowed");
-        setItems([...items, {product_id: "", name: "", quantity: "", price: "", image: "", stock: 0}]);
+        setItems([...items, {product_id: "", name: "", quantity: "", price: "", image: "", stock: 0, has_cost_price: true}]);
     };
 
     const removeItem = (idx) => {
@@ -118,6 +118,19 @@ export default function OrderForm({mode = 'add', order}) {
         }
         if (!selectedCustomer) return toast.error("Please select a customer");
         if (items.some(i => !i.product_id || !i.quantity)) return toast.error("Please fill all item details");
+
+        const productsById = new Map((allProducts || []).map(p => [p.product_id, p]));
+        const missingCostNames = Array.from(new Set(
+            items
+                .filter(i => i.product_id)
+                .map(i => productsById.get(i.product_id))
+                .filter(p => p && p.has_cost_price === false)
+                .map(p => p.product_name)
+        ));
+
+        if (missingCostNames.length) {
+            return toast.error(`Before creating the order, please add cost price for: ${missingCostNames.join(", ")}.`);
+        }
 
         setLoading(true);
         try {
@@ -143,7 +156,7 @@ export default function OrderForm({mode = 'add', order}) {
             router.push("/orders");
         } catch (err) {
             console.error(err);
-            toast.error(isEdit ? "Failed to update order" : "Failed to create order");
+            toast.error(err?.message || (isEdit ? "Failed to update order" : "Failed to create order"));
         } finally {
             setLoading(false);
         }
@@ -221,7 +234,7 @@ export default function OrderForm({mode = 'add', order}) {
                                     <ChevronDownIcon className="h-4 w-4 opacity-50"/>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-[min(340px,calc(100vw-2rem))] p-0" align="start">
+                            <PopoverContent className="p-0 w-full" align="start">
                                 <Calendar mode="single" selected={date} onSelect={(d) => { if (!canEditDate) return; setDate(d); setDatePopoverOpen(false); }} />
                             </PopoverContent>
                         </Popover>
@@ -269,6 +282,7 @@ export default function OrderForm({mode = 'add', order}) {
                                                             price: p.price_per_kg || 0,
                                                             image: p.image,
                                                             stock: p.stock_kg,
+                                                            has_cost_price: p.has_cost_price !== false,
                                                             quantity: ""
                                                         };
                                                         setItems(newItems);

@@ -15,8 +15,10 @@ import {useEffect} from "react";
 
 export default function ProductPopUp({open, onOpenChange, product = null}) {
     const {accessToken} = useAuth();
+    const {user} = useAuth();
     const queryClient = useQueryClient();
     const isEdit = !!product;
+    const isAdmin = user?.role === "admin";
 
     const {
         register,
@@ -30,6 +32,7 @@ export default function ProductPopUp({open, onOpenChange, product = null}) {
         defaultValues: {
             name: "",
             price: "",
+            cost_price_per_kg: "",
             image: undefined
         }
     });
@@ -40,12 +43,14 @@ export default function ProductPopUp({open, onOpenChange, product = null}) {
                 reset({
                     name: product.name || "",
                     price: product.price || "",
+                    cost_price_per_kg: product.cost_price_per_kg ?? "",
                     image: product.image || undefined
                 });
             } else {
                 reset({
                     name: "",
                     price: "",
+                    cost_price_per_kg: "",
                     image: undefined
                 });
             }
@@ -56,9 +61,17 @@ export default function ProductPopUp({open, onOpenChange, product = null}) {
 
     const mutation = useMutation({
         mutationFn: async (values) => {
+            if (!isAdmin) {
+                throw new Error("Admin access required");
+            }
+            if (values.cost_price_per_kg === "" || values.cost_price_per_kg === undefined || values.cost_price_per_kg === null) {
+                throw new Error("Cost price is required");
+            }
+
             const formData = new FormData();
             formData.append("name", values.name);
             formData.append("price", values.price);
+            formData.append("cost_price_per_kg", String(values.cost_price_per_kg));
             
             // Only append image if it's a new File object
             if (values.image instanceof File) {
@@ -95,8 +108,8 @@ export default function ProductPopUp({open, onOpenChange, product = null}) {
                     </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className={'space-y-6'}>
-                    <div className={'flex flex-col sm:flex-row items-start gap-4'}>
-                        <div className={'w-full sm:w-1/2 space-y-2'}>
+                    <div className={'space-y-4'}>
+                        <div className={'space-y-2'}>
                             <Label htmlFor={'name'}>Product Name</Label>
                             <Input
                                 {...register("name")}
@@ -106,8 +119,10 @@ export default function ProductPopUp({open, onOpenChange, product = null}) {
                             />
                             {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>}
                         </div>
-                        <div className={'w-full sm:w-1/2 space-y-2'}>
-                            <Label htmlFor={'price'}>Product Price (₹)</Label>
+
+                        <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
+                            <div className={'space-y-2'}>
+                                <Label htmlFor={'price'}>Selling Price /kg (₹)</Label>
                             <Input
                                 {...register("price")}
                                 type={'number'}
@@ -116,6 +131,21 @@ export default function ProductPopUp({open, onOpenChange, product = null}) {
                                 className={errors.price && "border-red-500"}
                             />
                             {errors.price && <p className="text-xs text-red-500 font-medium">{errors.price.message}</p>}
+                        </div>
+
+                            {isAdmin && (
+                                <div className={'space-y-2'}>
+                                    <Label htmlFor={'cost_price_per_kg'}>Cost Price /kg (₹)</Label>
+                                    <Input
+                                        {...register("cost_price_per_kg")}
+                                        type={'number'}
+                                        step="0.01"
+                                        placeholder={'e.g. 150'}
+                                        className={errors.cost_price_per_kg && "border-red-500"}
+                                    />
+                                    {errors.cost_price_per_kg && <p className="text-xs text-red-500 font-medium">{errors.cost_price_per_kg.message}</p>}
+                                </div>
+                            )}
                         </div>
                     </div>
 

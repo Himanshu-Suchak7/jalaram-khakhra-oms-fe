@@ -15,8 +15,9 @@ import PageHeader from "@/components/shared/PageHeader";
 import ConfirmationDialog from "@/components/shared/ConfirmationDialog";
 
 export default function Products() {
-    const {accessToken} = useAuth();
+    const {accessToken, user} = useAuth();
     const queryClient = useQueryClient();
+    const isAdmin = user?.role === "admin";
     const [openProductModal, setOpenProductModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [deletingProductId, setDeletingProductId] = useState(null);
@@ -98,9 +99,9 @@ export default function Products() {
             <PageHeader 
                 title="Products Catalog" 
                 description="Manage your product catalog, media assets, and pricing strategy."
-                buttonContent="Add New Product"
-                buttonIcon={Plus}
-                onButtonClick={handleAdd}
+                buttonContent={isAdmin ? "Add New Product" : undefined}
+                buttonIcon={isAdmin ? Plus : undefined}
+                onButtonClick={isAdmin ? handleAdd : undefined}
             />
 
             {loading ? (
@@ -133,9 +134,13 @@ export default function Products() {
                         <h2 className="text-3xl font-bold text-gray-800">Your shelf is empty!</h2>
                         <p className="text-gray-500 text-lg max-w-sm font-medium">Add your first product to start taking orders.</p>
                     </div>
-                    <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-7 rounded-2xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all">
-                        <Plus className="w-6 h-6 mr-2" /> Add My First Product
-                    </Button>
+                    {isAdmin ? (
+                        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-7 rounded-2xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all">
+                            <Plus className="w-6 h-6 mr-2" /> Add My First Product
+                        </Button>
+                    ) : (
+                        <div className="text-gray-500 font-bold">Ask an admin to add products.</div>
+                    )}
                 </div>
             ) : (
                 <>
@@ -165,10 +170,10 @@ export default function Products() {
                                     <p className="text-blue-600 font-bold text-xl mt-2 tracking-tight">₹ {product.price}</p>
                                 </CardContent>
                                 <CardFooter className="pt-2 pb-6 flex items-center gap-3 px-6">
-                                    <Button onClick={() => handleEdit(product)} className={'bg-blue-600 text-white flex-1 text-lg py-7 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/10 font-bold border-none'}>
+                                    <Button onClick={() => handleEdit(product)} disabled={!isAdmin} className={'bg-blue-600 text-white flex-1 text-lg py-7 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/10 font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed'}>
                                         Edit Details
                                     </Button>
-                                    <Button onClick={() => requestDelete(product.id)} variant="outline" className="p-5 h-auto rounded-xl text-red-500 border-red-50 hover:bg-red-50 hover:text-red-600 transition-all border-2">
+                                    <Button onClick={() => requestDelete(product.id)} disabled={!isAdmin} variant="outline" className="p-5 h-auto rounded-xl text-red-500 border-red-50 hover:bg-red-50 hover:text-red-600 transition-all border-2 disabled:opacity-50 disabled:cursor-not-allowed">
                                         <Trash2 className="w-6 h-6" />
                                     </Button>
                                 </CardFooter>
@@ -178,7 +183,9 @@ export default function Products() {
                 </>
             )}
 
-            <ProductPopUp open={openProductModal} onOpenChange={setOpenProductModal} product={editingProduct} />
+            {isAdmin && (
+                <ProductPopUp open={openProductModal} onOpenChange={setOpenProductModal} product={editingProduct} />
+            )}
 
             <ConfirmationDialog 
                 open={isDeleteDialogOpen} 

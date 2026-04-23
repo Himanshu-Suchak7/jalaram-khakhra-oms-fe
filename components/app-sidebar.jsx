@@ -10,7 +10,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import {Home, Package, Users, Settings, LogOut, ShoppingCart, UserCog, Warehouse} from "lucide-react";
+import {Home, Package, Users, Settings, LogOut, ShoppingCart, UserCog, Warehouse, TrendingUp} from "lucide-react";
 import Image from "next/image";
 import {usePathname, useRouter} from "next/navigation";
 import {cn} from "@/lib/utils";
@@ -118,6 +118,23 @@ export function AppSidebar() {
                                     </SidebarMenuItem>
                                 );
                             })}
+                            {user?.role === "admin" && (
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        className={cn(
+                                            "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
+                                            "hover:bg-blue-100 hover:text-blue-700",
+                                            (pathname === "/profit" || pathname.startsWith("/profit/")) && "bg-blue-100 text-blue-700 font-bold"
+                                        )}
+                                    >
+                                        <Link href="/profit">
+                                            <TrendingUp />
+                                            <span>Profit</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )}
                             {user?.role === "admin" && (
                                 <SidebarMenuItem>
                                     <SidebarMenuButton
