@@ -163,7 +163,7 @@ export function AppSidebar() {
             <SidebarFooter className={'border-t'}>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton onClick={handleLogout}>
+                        <SidebarMenuButton onClick={handleLogout} className={'hover:bg-red-100 hover:text-red-600 hover:border hover:border-red-600 dark:hover:bg-red-900/40 dark:border-red-400 dark:hover:text-red-400'}>
                                 <LogOut/>
                                 <span>Log out</span>
                         </SidebarMenuButton>
