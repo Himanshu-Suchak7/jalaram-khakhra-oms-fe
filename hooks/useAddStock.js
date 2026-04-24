@@ -7,13 +7,13 @@ export const useAddStock = () => {
 
     return useMutation({
         mutationFn: (data) => addInventoryTransaction(data),
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ["inventory-items"] });
             queryClient.invalidateQueries({ queryKey: ["inventory-summary"] });
-            toast.success("Stock added successfully");
+            toast.success(variables?.action === "deduct" ? "Stock deducted successfully" : "Stock added successfully");
         },
         onError: (error) => {
-            toast.error(error.message || "Failed to add stock");
+            toast.error(error.message || "Failed to update inventory");
         }
     });
 };

@@ -6,7 +6,7 @@ export default function AddOrder() {
             <div className={'flex items-center'}>
                 <div className={'space-y-2'}>
                     <h1 className={'text-4xl font-bold'}>Add New Order</h1>
-                    <p className={'text-gray-400 text-lg'}>Please fill in the below details to create a new order.</p>
+                    <p className={'text-muted-foreground text-lg'}>Please fill in the below details to create a new order.</p>
                 </div>
             </div>
             <OrderForm mode={'add'}/>

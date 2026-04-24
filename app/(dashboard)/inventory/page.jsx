@@ -19,10 +19,14 @@ import {useUpdateMinStock} from "@/hooks/useUpdateMinStock";
 import PageHeader from "@/components/shared/PageHeader";
 import SummaryCard from "@/components/shared/SummaryCard";
 import StatusBadge from "@/components/shared/StatusBadge";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {useAuth} from "@/lib/auth-context";
 
 const userTableHeader = ['PRODUCT', 'STOCK (KG)', 'MIN STOCK', 'STATUS', 'ACTIONS']
 
 export default function Inventory() {
+    const {user} = useAuth();
+    const isAdmin = user?.role === "admin";
     const {data, isLoading} = useInventorySummary();
     const cardContents = [
         {
@@ -52,7 +56,7 @@ export default function Inventory() {
     const [editingMinStockId, setEditingMinStockId] = useState(null)
     const stockForm = useForm({
         resolver: zodResolver(addStockSchema),
-        defaultValues: { quantity_kg: '' },
+        defaultValues: { action: 'add', quantity_kg: '' },
     })
     const minStockForm = useForm({
         resolver: zodResolver(updateMinStockSchema),
@@ -63,7 +67,7 @@ export default function Inventory() {
     const {mutate: updateMinStockMutate, isPending: isUpdatingMinStock} = useUpdateMinStock();
 
     const onAddStock = (productId, data) => {
-        addStock({ product_id: productId, quantity_kg: data.quantity_kg, action: "add" }, {
+        addStock({ product_id: productId, quantity_kg: data.quantity_kg, action: data.action }, {
             onSuccess: () => stockForm.reset()
         });
     }
@@ -180,20 +184,57 @@ export default function Inventory() {
                                     <TableCell className="px-6 py-5">
                                         <Popover>
                                             <PopoverTrigger asChild>
-                                                <Button className="bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 h-10 px-4 rounded-xl font-bold shadow-none border-none">
-                                                    <Plus className="w-4 h-4 mr-1.5" /> Add Stock
+                                                <Button disabled={!isAdmin} className=" bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 h-10 px-4 rounded-xl font-bold shadow-none border-none disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <Plus className="w-4 h-4 mr-1.5" /> Stock
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-64 p-5 rounded-2xl shadow-2xl border-none outline-none">
                                                 <div className="space-y-4">
-                                                    <p className="text-sm font-bold">Restock {item.product_name}</p>
+                                                    {(() => {
+                                                        const currentAction = stockForm.watch("action");
+                                                        const availableStock = Number(item.stock_kg || 0);
+                                                        if (currentAction === "deduct" && availableStock <= 0) {
+                                                            stockForm.setValue("action", "add", { shouldValidate: true });
+                                                            stockForm.setValue("quantity_kg", "", { shouldValidate: true });
+                                                        }
+                                                        return null;
+                                                    })()}
+                                                    <p className="text-sm font-bold">
+                                                        {stockForm.watch("action") === "deduct" ? "Deduct Stock:" : "Add Stock:"} {item.product_name}
+                                                    </p>
+                                                    <div className="space-y-2">
+                                                        <p className="text-xs font-bold text-muted-foreground">Transaction Type</p>
+                                                        <Select
+                                                            value={stockForm.watch("action")}
+                                                            onValueChange={(val) => stockForm.setValue("action", val, { shouldValidate: true })}
+                                                        >
+                                                            <SelectTrigger className="w-full h-12 rounded-xl font-bold">
+                                                                <SelectValue placeholder="Select type" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="add">Add Stock</SelectItem>
+                                                                <SelectItem 
+                                                                    value="deduct" 
+                                                                    disabled={Number(item.stock_kg || 0) <= 0}
+                                                                    className="disabled:cursor-not-allowed"
+                                                                >
+                                                                    Deduct Stock
+                                                                </SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {Number(item.stock_kg || 0) <= 0 && (
+                                                            <p className="text-xs font-bold text-muted-foreground">
+                                                                Deduct is disabled for out-of-stock items.
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                     <div className="relative">
                                                         <Input type="number" placeholder="0.00" className="h-12 rounded-xl pr-12 font-bold" {...stockForm.register("quantity_kg")} />
                                                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">KG</span>
                                                     </div>
-                                                    <Button className="w-full py-6 rounded-xl font-bold bg-blue-600 hover:bg-blue-700" disabled={isAddingStock}
+                                                    <Button className="w-full py-6 rounded-xl font-bold bg-blue-600 hover:bg-blue-700" disabled={isAddingStock || !isAdmin || (stockForm.watch("action") === "deduct" && Number(item.stock_kg || 0) <= 0)}
                                                             onClick={stockForm.handleSubmit((data) => onAddStock(item.product_id, data))}>
-                                                        {isAddingStock ? "Processing..." : "Update Stock"}
+                                                        {isAddingStock ? "Processing..." : (stockForm.watch("action") === "deduct" ? "Deduct Stock" : "Add Stock")}
                                                     </Button>
                                                 </div>
                                             </PopoverContent>

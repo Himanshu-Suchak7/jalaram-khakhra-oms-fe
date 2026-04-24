@@ -5,7 +5,7 @@ import MainButton from "@/components/MainButton";
 import {Check, ChevronDownIcon, Trash2, Pencil, Plus, Search, User, Package} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {Popover, PopoverContent, PopoverTrigger, PopoverClose} from "@/components/ui/popover";
 import {Calendar} from "@/components/ui/calendar";
 import {useState, useEffect} from "react";
 import {Textarea} from "@/components/ui/textarea";
@@ -18,11 +18,14 @@ import {getBusiness} from "@/lib/business";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
+import {useAuth} from "@/lib/auth-context";
 
 export default function OrderForm({mode = 'add', order}) {
     const isEdit = mode === 'edit';
     const isAdd = mode === "add";
     const router = useRouter();
+    const {user} = useAuth();
+    const isAdmin = user?.role === "admin";
 
     const [customers, setCustomers] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
@@ -33,7 +36,7 @@ export default function OrderForm({mode = 'add', order}) {
     const [date, setDate] = useState(new Date());
     const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
-    const [items, setItems] = useState([{product_id: "", name: "", quantity: "", price: "", image: "", stock: 0, has_cost_price: true}]);
+    const [items, setItems] = useState([{product_id: "", name: "", quantity: "", price: "", cost_price_per_kg: "", image: "", stock: 0, has_cost_price: true}]);
     const [notes, setNotes] = useState("");
     const [loading, setLoading] = useState(false);
     const [rates, setRates] = useState({tax_rate: 18, shipping_rate: 15});
@@ -90,8 +93,10 @@ export default function OrderForm({mode = 'add', order}) {
                         name: i.product_name,
                         quantity: String(i.quantity_kg),
                         price: String(i.price_per_kg),
+                        cost_price_per_kg: i.cost_price_per_kg ?? (product?.cost_price_per_kg ?? ""),
                         image: product ? product.image : "", 
-                        stock: product ? (Number(product.stock_kg) + Number(i.quantity_kg)) : 999
+                        stock: product ? (Number(product.stock_kg) + Number(i.quantity_kg)) : 999,
+                        has_cost_price: product ? product.has_cost_price !== false : true,
                     };
                 }));
             }
@@ -103,13 +108,25 @@ export default function OrderForm({mode = 'add', order}) {
     const shipping = subtotal * (rates.shipping_rate / 100);
     const grandTotal = subtotal + tax + shipping;
 
+    const orderProfit = !isAdmin ? 0 : items.reduce((sum, item) => {
+        const qty = Number(item.quantity || 0);
+        const sp = Number(item.price || 0);
+        const cp = Number(item.cost_price_per_kg || 0);
+        if (!qty || !sp || !item.cost_price_per_kg) return sum;
+        return sum + ((sp - cp) * qty);
+    }, 0);
+
     const addItem = () => {
         if (items.length >= 10) return toast.error("Maximum 10 items allowed");
-        setItems([...items, {product_id: "", name: "", quantity: "", price: "", image: "", stock: 0, has_cost_price: true}]);
+        setItems([...items, {product_id: "", name: "", quantity: "", price: "", cost_price_per_kg: "", image: "", stock: 0, has_cost_price: true}]);
     };
 
     const removeItem = (idx) => {
-        setItems(items.filter((_, i) => i !== idx));
+        if (items.length === 1) {
+            setItems([{product_id: "", name: "", quantity: "", price: "", image: "", stock: 0, has_cost_price: true}]);
+        } else {
+            setItems(items.filter((_, i) => i !== idx));
+        }
     };
 
     const handleSave = async () => {
@@ -181,7 +198,7 @@ export default function OrderForm({mode = 'add', order}) {
                                 <Button variant="outline" className="w-full justify-between font-normal h-12" disabled={!canEditCustomer}>
                                     {selectedCustomer ? (
                                         <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
                                                 {selectedCustomer.name[0]}
                                             </div>
                                             <span>{selectedCustomer.name}</span>
@@ -193,7 +210,7 @@ export default function OrderForm({mode = 'add', order}) {
                             <PopoverContent className="w-[min(400px,calc(100vw-2rem))] p-0" align="start">
                                 <div className="p-2 border-b">
                                     <div className="relative">
-                                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"/>
+                                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
                                         <Input 
                                             placeholder="Search customer..." 
                                             className="pl-8 h-9"
@@ -204,22 +221,23 @@ export default function OrderForm({mode = 'add', order}) {
                                 </div>
                                 <div className="max-h-[300px] overflow-y-auto p-1">
                                     {(customers || []).filter(c => (c.name || "").toLowerCase().includes((customerSearch || "").toLowerCase())).map(c => (
-                                        <div 
-                                            key={c.id}
-                                            onClick={() => {
-                                                setSelectedCustomer(c);
-                                                setCustomerPopoverOpen(false);
-                                            }}
-                                            className="flex items-center gap-3 p-2 hover:bg-muted rounded-md cursor-pointer transition-colors"
-                                        >
-                                            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold">
-                                                {(c.name || "C")[0]}
+                                        <PopoverClose key={c.id} asChild>
+                                            <div 
+                                                onClick={() => {
+                                                    setSelectedCustomer(c);
+                                                    setCustomerPopoverOpen(false);
+                                                }}
+                                                className="flex items-center gap-3 p-2 hover:bg-muted rounded-md cursor-pointer transition-colors w-full text-left"
+                                            >
+                                                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
+                                                    {(c.name || "C")[0]}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium">{c.name}</p>
+                                                    <p className="text-xs text-muted-foreground">{c.phone_number} {c.city ? `| ${c.city}` : ''}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-medium">{c.name}</p>
-                                                <p className="text-xs text-muted-foreground">{c.phone_number} {c.city ? `| ${c.city}` : ''}</p>
-                                            </div>
-                                        </div>
+                                        </PopoverClose>
                                     ))}
                                 </div>
                             </PopoverContent>
@@ -244,7 +262,7 @@ export default function OrderForm({mode = 'add', order}) {
 
             <div className={'px-6 py-6 border-b'}>
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className={'font-semibold text-lg flex items-center gap-2'}><Package className="w-5 h-5 text-blue-500"/> Order Items</h3>
+                    <h3 className={'font-semibold text-lg flex items-center gap-2'}><Package className="w-5 h-5 text-blue-500 dark:text-blue-400"/> Order Items</h3>
                     <Button variant='outline' size="sm" onClick={addItem} className='cursor-pointer gap-1' disabled={!canEditItems}>
                         <Plus className="w-4 h-4"/> Add Item
                     </Button>
@@ -271,33 +289,41 @@ export default function OrderForm({mode = 'add', order}) {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[min(350px,calc(100vw-2rem))] p-0" align="start">
                                         <div className="max-h-[300px] overflow-y-auto p-1">
-                                            {(allProducts || []).map(p => (
-                                                <div 
-                                                    key={p.product_id}
-                                                    onClick={() => {
-                                                        const newItems = [...items];
+                                            {(allProducts || []).filter(p => !items.some((i, index) => i.product_id === p.product_id && index !== idx)).map(p => (
+                                                <PopoverClose key={p.product_id} asChild>
+                                                    <div 
+                                                        onClick={(e) => {
+                                                            if (p.stock_kg <= 0) {
+                                                                e.preventDefault();
+                                                                return;
+                                                            }
+                                                            const newItems = [...items];
                                                         newItems[idx] = {
                                                             product_id: p.product_id,
                                                             name: p.product_name,
                                                             price: p.price_per_kg || 0,
+                                                            cost_price_per_kg: p.cost_price_per_kg ?? "",
                                                             image: p.image,
                                                             stock: p.stock_kg,
                                                             has_cost_price: p.has_cost_price !== false,
                                                             quantity: ""
                                                         };
-                                                        setItems(newItems);
-                                                    }}
-                                                    className="flex items-center gap-3 p-2 hover:bg-muted rounded-md cursor-pointer"
-                                                >
-                                                        <img src={p.image || "/placeholder.png"} alt={p.product_name || "product"} className="w-10 h-10 object-cover rounded border" />
-                                                    <div className="flex-1">
-                                                        <p className="font-medium">{p.product_name}</p>
-                                                        <div className="flex items-center justify-between">
-                                                            <p className="text-xs text-blue-600 font-bold">₹ {p.stock_kg > 0 ? "In Stock" : "Out of Stock"}</p>
-                                                            <p className="text-xs font-medium text-muted-foreground">Avail: {p.stock_kg} kg</p>
+                                                            setItems(newItems);
+                                                        }}
+                                                        className={`flex items-center gap-3 p-2 rounded-md transition-colors w-full text-left ${p.stock_kg > 0 ? 'hover:bg-muted cursor-pointer' : 'opacity-60 cursor-not-allowed bg-muted/30'}`}
+                                                    >
+                                                            <img src={p.image || "/placeholder.png"} alt={p.product_name || "product"} className="w-10 h-10 object-cover rounded border" />
+                                                        <div className="flex-1">
+                                                            <p className="font-medium">{p.product_name}</p>
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">₹ {p.price_per_kg}</p>
+                                                                <p className="text-xs font-medium text-muted-foreground">
+                                                                    Avail: {p.stock_kg} kg <span className={p.stock_kg > 0 ? "text-blue-600 dark:text-blue-400 font-bold" : "text-destructive font-bold"}>({p.stock_kg > 0 ? "In Stock" : "Out of Stock"})</span>
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </PopoverClose>
                                             ))}
                                         </div>
                                     </PopoverContent>
@@ -305,7 +331,7 @@ export default function OrderForm({mode = 'add', order}) {
                             </div>
 
                             <div className="col-span-6 md:col-span-2 space-y-2">
-                                <Label>Qty (kg) <span className="text-[10px] text-blue-500 font-bold">Max: {item.stock}</span></Label>
+                                <Label>Qty (kg) <span className="text-[10px] text-blue-500 dark:text-blue-400 font-bold">Max: {item.stock}</span></Label>
                                 <Select 
                                     disabled={!item.product_id || item.stock <= 0 || !canEditItems}
                                     onValueChange={(val) => {
@@ -347,9 +373,14 @@ export default function OrderForm({mode = 'add', order}) {
                                 <div className="flex flex-col">
                                     <Label className="text-xs text-muted-foreground">Line Total</Label>
                                     <span className="text-lg font-bold">₹ {(Number(item.quantity || 0) * Number(item.price || 0)).toLocaleString()}</span>
+                                    {isAdmin && item.cost_price_per_kg !== "" && item.cost_price_per_kg != null && (
+                                        <span className="text-xs font-bold text-emerald-700">
+                                            Profit: ₹ {(((Number(item.price || 0) - Number(item.cost_price_per_kg || 0)) * Number(item.quantity || 0)) || 0).toLocaleString()}
+                                        </span>
+                                    )}
                                 </div>
-                                {items.length > 1 && (
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem(idx)} disabled={!canEditItems} className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                                {(items.length > 1 || item.product_id) && (
+                                    <Button variant="ghost" size="icon" onClick={() => removeItem(idx)} disabled={!canEditItems} className="text-destructive hover:text-destructive hover:bg-destructive/10">
                                         <Trash2 className="w-5 h-5"/>
                                     </Button>
                                 )}
@@ -369,8 +400,8 @@ export default function OrderForm({mode = 'add', order}) {
                         onChange={(e) => setNotes(e.target.value)}
                     />
                 </div>
-                <div className={'bg-blue-50/50 p-6 rounded-2xl border border-blue-100 order-1 md:order-2'}>
-                    <div className={'border-b border-blue-100 space-y-3 pb-4'}>
+                <div className={'bg-blue-50/50 dark:bg-blue-950/50 p-6 rounded-2xl border border-blue-100 dark:border-blue-900 order-1 md:order-2'}>
+                    <div className={'border-b border-blue-100 dark:border-blue-900 space-y-3 pb-4'}>
                         <div className={'flex items-center justify-between'}>
                             <p className={'text-muted-foreground font-medium'}>Subtotal</p>
                             <p className={'font-bold'}>₹ {subtotal.toLocaleString()}</p>
@@ -385,9 +416,15 @@ export default function OrderForm({mode = 'add', order}) {
                         </div>
                     </div>
                     <div className={'flex items-center justify-between pt-4'}>
-                        <p className={'text-lg sm:text-xl font-bold text-blue-900'}>Grand Total</p>
-                        <p className={'text-xl sm:text-2xl text-blue-600 font-black'}>₹ {grandTotal.toLocaleString()}</p>
+                        <p className={'text-lg sm:text-xl font-bold text-blue-900 dark:text-blue-100'}>Grand Total</p>
+                        <p className={'text-xl sm:text-2xl text-blue-600 dark:text-blue-400 font-black'}>₹ {grandTotal.toLocaleString()}</p>
                     </div>
+                    {isAdmin && (
+                        <div className={'flex items-center justify-between pt-3 mt-3 border-t border-blue-100 dark:border-blue-900'}>
+                            <p className={'text-sm sm:text-base font-bold text-emerald-900 dark:text-emerald-200'}>Order Profit</p>
+                            <p className={'text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-300'}>₹ {Number(orderProfit || 0).toLocaleString()}</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

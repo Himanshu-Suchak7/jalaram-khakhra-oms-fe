@@ -30,7 +30,7 @@ export default function EditOrder({ params }) {
         );
     }
 
-    if (!orderData) return <div className="text-center py-20 text-red-500 font-bold">Order not found.</div>;
+    if (!orderData) return <div className="text-center py-20 text-destructive font-bold">Order not found.</div>;
 
     return (
         <div className="space-y-6">
